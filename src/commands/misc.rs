@@ -39,8 +39,6 @@ pub async fn version(ctx: Context<'_>) -> Result<(), Error> {
 /// Update bot to latest version
 #[poise::command(slash_command, prefix_command)]
 pub async fn update(ctx: Context<'_>) -> Result<(), Error> {
-    ctx.say("Checking for updates...").await?;
-
     let result = tokio::task::spawn_blocking(update_binary).await?;
 
     match result {

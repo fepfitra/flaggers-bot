@@ -93,6 +93,7 @@ fn main() {
             Ok(version) => {
                 println!("Updated to v{}", version);
                 stop_daemon(&args.pid_file);
+                std::thread::sleep(std::time::Duration::from_secs(1));
                 daemonize(&args.pid_file);
             }
             Err(e) => {
