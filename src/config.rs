@@ -15,17 +15,6 @@ fn get_config_path() -> PathBuf {
     config_dir.join("config.json")
 }
 
-pub fn save_token(token: &str) -> Result<(), String> {
-    let config_path = get_config_path();
-    let config = Config {
-        discord_token: token.to_string(),
-    };
-    let content = serde_json::to_string_pretty(&config)
-        .map_err(|e| format!("Failed to serialize config: {}", e))?;
-    fs::write(&config_path, content).map_err(|e| format!("Failed to write config: {}", e))?;
-    Ok(())
-}
-
 pub fn load_token() -> Result<String, String> {
     let config_path = get_config_path();
 
