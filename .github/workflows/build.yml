@@ -12,14 +12,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             binary: flaggers_bot
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            binary: flaggers_bot.exe
           - os: macos-latest
             target: x86_64-apple-darwin
             binary: flaggers_bot
