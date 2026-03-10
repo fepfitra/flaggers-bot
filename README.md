@@ -1,6 +1,6 @@
 # flaggers_bot
 
-A Discord bot for CTF (Capture The Flag) events, built with Rust.
+A Discord bot for CTF (Capture The Flag) events.
 
 ## Features
 
