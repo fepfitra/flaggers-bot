@@ -9,7 +9,7 @@ INSTALL_DIR="$HOME/.local/bin"
 echo "Checking for latest version..."
 
 # Get latest release tag
-LATEST_TAG=$(curl -sL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name"' | sed -E 's/.*"tag_name": "([^"]+)".*/\1/')
+LATEST_TAG=$(curl -sL "https://api.github.com/repos/$REPO/releases/latest" | grep -o '"tag_name":"[^"]*"' | sed 's/.*"tag_name":"\(.*\)"/\1/')
 
 echo "Latest version: $LATEST_TAG"
 
