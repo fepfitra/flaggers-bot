@@ -5,7 +5,8 @@ set -e
 REPO="fepfitra/flaggers-bot"
 BINARY_NAME="flaggers_bot"
 INSTALL_DIR="$HOME/.local/bin"
-CONFIG_FILE="$HOME/.config/flaggers_bot/config.json"
+CONFIG_DIR="$HOME/.config/flaggers_bot"
+CONFIG_FILE="$CONFIG_DIR/config.json"
 LOG_FILE="$HOME/flaggers_bot.log"
 
 # Get latest release tag
@@ -48,9 +49,38 @@ if [ -f "$HOME/flaggers_bot.pid" ]; then
     fi
 fi
 
-# Start bot - it will prompt for token if needed
+# Check if config exists with valid token
+if [ -f "$CONFIG_FILE" ]; then
+    TOKEN=$(grep -o '"discord_token"[[:space:]]*:[[:space:]]*"[^"]*"' "$CONFIG_FILE" | sed 's/.*"discord_token"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+    if [ -n "$TOKEN" ]; then
+        echo "Config found with token"
+    else
+        echo "Config found but token is empty"
+        TOKEN=""
+    fi
+else
+    echo "No config found"
+    TOKEN=""
+fi
+
+# If no token, prompt user
+if [ -z "$TOKEN" ]; then
+    echo ""
+    echo "=== Discord Token Required ==="
+    echo "Enter your Discord token:"
+    read -s TOKEN
+    if [ -z "$TOKEN" ]; then
+        echo "Token is required. Aborting."
+        exit 1
+    fi
+    mkdir -p "$CONFIG_DIR"
+    echo "{\"discord_token\": \"$TOKEN\"}" > "$CONFIG_FILE"
+    echo "Token saved to config"
+fi
+
+# Start bot in background
 cd "$HOME"
-nohup "$INSTALL_DIR/$BINARY_NAME" > "$LOG_FILE" 2>&1 &
+DISCORD_TOKEN="$TOKEN" nohup "$INSTALL_DIR/$BINARY_NAME" > "$LOG_FILE" 2>&1 &
 NEW_PID=$!
 echo "$NEW_PID" > "$HOME/flaggers_bot.pid"
 
