@@ -6,6 +6,8 @@ use serenity::builder::CreateEmbed;
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub type Context<'a> = poise::Context<'a, (), Error>;
 
+pub const REPO_URL: &str = "https://github.com/fepfitra/flaggers-bot";
+
 #[derive(Debug, Deserialize)]
 struct CtfEvent {
     title: String,

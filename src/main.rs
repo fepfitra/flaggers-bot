@@ -1,7 +1,7 @@
 mod bot;
 mod cli;
+mod commands;
 mod config;
-mod ctftime;
 mod daemon;
 
 use bot::run_bot_blocking;

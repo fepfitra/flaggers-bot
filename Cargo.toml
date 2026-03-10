@@ -17,3 +17,4 @@ daemonize = "0.5"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 dotenv = "0.15"
+sysinfo = "0.32"
