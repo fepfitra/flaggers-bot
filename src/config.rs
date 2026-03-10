@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::io::{self, Write};
 use std::path::PathBuf;
 
 #[derive(Deserialize, Serialize)]
@@ -15,6 +16,17 @@ fn get_config_path() -> PathBuf {
     config_dir.join("config.json")
 }
 
+fn prompt_for_token() -> Option<String> {
+    print!("Enter your Discord token (or press Ctrl+C to cancel): ");
+    io::stdout().flush().ok()?;
+    let mut token = String::new();
+    match io::stdin().read_line(&mut token) {
+        Ok(0) => None,
+        Ok(_) => Some(token.trim().to_string()),
+        Err(_) => None,
+    }
+}
+
 pub fn load_token() -> Result<String, String> {
     let config_path = get_config_path();
 
@@ -26,8 +38,16 @@ pub fn load_token() -> Result<String, String> {
         return Ok(config.discord_token);
     }
 
-    let token = std::env::var("DISCORD_TOKEN")
-        .map_err(|_| "DISCORD_TOKEN not found in environment".to_string())?;
+    let token = std::env::var("DISCORD_TOKEN").unwrap_or_else(|_| {
+        println!("DISCORD_TOKEN not found in environment or config file.");
+        match prompt_for_token() {
+            Some(t) => t,
+            None => {
+                println!("Aborted.");
+                std::process::exit(1);
+            }
+        }
+    });
 
     let config = Config {
         discord_token: token.clone(),
