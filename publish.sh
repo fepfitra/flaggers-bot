@@ -17,7 +17,7 @@ if [[ ! "$TYPE" =~ ^(patch|minor|major)$ ]]; then
     exit 1
 fi
 
-CARGO_FILE="flaggers_bot/Cargo.toml"
+CARGO_FILE="Cargo.toml"
 
 CURRENT_VERSION=$(grep '^version = ' "$CARGO_FILE" | sed 's/version = "\(.*\)"/\1/')
 
