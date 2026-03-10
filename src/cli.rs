@@ -1,7 +1,7 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[command(name = "flaggers_bot")]
+#[command(name = "flaggers_bot", version = env!("CARGO_PKG_VERSION"))]
 #[command(about = "A Discord bot for CTF events", long_about = None)]
 pub struct Args {
     #[arg(short, long, default_value = "flaggers_bot.pid")]
