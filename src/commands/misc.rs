@@ -9,6 +9,7 @@ fn get_binary_size() -> u64 {
         .unwrap_or(0)
 }
 
+/// Show bot version, RAM usage, and binary size
 #[poise::command(slash_command, prefix_command)]
 pub async fn version(ctx: Context<'_>) -> Result<(), Error> {
     let mut sys = System::new_all();
@@ -35,6 +36,7 @@ pub async fn version(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
+/// Update bot to latest version
 #[poise::command(slash_command, prefix_command)]
 pub async fn update(ctx: Context<'_>) -> Result<(), Error> {
     ctx.say("Checking for updates...").await?;
