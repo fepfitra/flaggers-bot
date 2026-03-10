@@ -46,6 +46,7 @@ echo "Current version: $CURRENT_VERSION"
 echo "New version: $NEW_VERSION"
 
 sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" "$CARGO_FILE"
+sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" Cargo.lock
 
 git add "$CARGO_FILE" Cargo.lock
 git commit -m "chore: bump version to v$NEW_VERSION"
