@@ -14,8 +14,8 @@ echo "Latest version: $LATEST_TAG"
 # Detect OS
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 case "$OS" in
-    linux*) ARCH="x86_64-unknown-linux-gnu" ;;
-    darwin*) ARCH="x86_64-apple-darwin" ;;
+    linux*) ASSET_NAME="flaggers_bot-linux-x86_64" ;;
+    darwin*) ASSET_NAME="flaggers_bot-macos-x86_64" ;;
     *)
         echo "Unsupported OS: $OS"
         exit 1
@@ -23,7 +23,7 @@ case "$OS" in
 esac
 
 # Download URL
-DOWNLOAD_URL="https://github.com/$REPO/releases/download/$LATEST_TAG/flaggers_bot-$ARCH"
+DOWNLOAD_URL="https://github.com/$REPO/releases/download/$LATEST_TAG/$ASSET_NAME"
 
 echo "Downloading from: $DOWNLOAD_URL"
 

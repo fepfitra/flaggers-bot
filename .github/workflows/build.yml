@@ -89,16 +89,30 @@ jobs:
         id: get_tag
         run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Download all artifacts
+      - name: Download ubuntu artifact
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
-          merge-multiple: true
+          name: flaggers_bot-ubuntu-latest-${{ steps.get_tag.outputs.TAG }}
+          path: ubuntu
+
+      - name: Download macos artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: flaggers_bot-macos-latest-${{ steps.get_tag.outputs.TAG }}
+          path: macos
+
+      - name: Rename linux binary
+        run: mv ubuntu/flaggers_bot flaggers_bot-linux-x86_64
+
+      - name: Rename macos binary
+        run: mv macos/flaggers_bot flaggers_bot-macos-x86_64
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_tag.outputs.TAG }}
-          files: artifacts/**
+          files: |
+            flaggers_bot-linux-x86_64
+            flaggers_bot-macos-x86_64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
