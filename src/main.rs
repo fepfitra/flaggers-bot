@@ -14,9 +14,19 @@ pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync
     let current_exe = std::env::current_exe()?;
     let temp_exe = current_exe.with_file_name("flaggers_bot_new");
 
-    let response = reqwest::blocking::get(
+    let client = reqwest::blocking::Client::builder()
+        .user_agent("flaggers-bot")
+        .build()?;
+
+    let response = client.get(
         "https://api.github.com/repos/fepfitra/flaggers-bot/releases/latest",
-    )?;
+    )
+    .send()?;
+
+    if !response.status().is_success() {
+        return Err(format!("GitHub API error: {}", response.status()).into());
+    }
+
     let json: serde_json::Value = response.json()?;
 
     let tag_name = json["tag_name"]
@@ -47,7 +57,12 @@ pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync
         .ok_or("Failed to get download URL")?;
 
     println!("Downloading {}...", asset_url);
-    let mut response = reqwest::blocking::get(asset_url)?;
+    let mut response = client.get(asset_url).send()?;
+
+    if !response.status().is_success() {
+        return Err(format!("Download failed: {}", response.status()).into());
+    }
+
     let mut file = std::fs::File::create(&temp_exe)?;
     std::io::copy(&mut response, &mut file)?;
 
