@@ -56,7 +56,6 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User={}
 WorkingDirectory={}
 ExecStart={}
 Restart=always
@@ -65,7 +64,6 @@ RestartSec=5
 [Install]
 WantedBy=default.target
 "#,
-        whoami::username(),
         home.display(),
         bin_path.display()
     );
