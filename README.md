@@ -47,22 +47,24 @@ A Discord bot for CTF (Capture The Flag) events.
 curl -sL https://raw.githubusercontent.com/fepfitra/flaggers-bot/master/install.sh | sh
 ```
 
+This will download the binary, set permissions, and install the systemd service.
+
 ## Usage
 
 ```bash
-# Run normally
+# Run the bot (requires systemd service installed)
 flaggers_bot
 
-# Run as daemon (Unix only)
-flaggers_bot --daemon
+# Install systemd service (run once)
+flaggers_bot install-systemd
 
-# Stop daemon
-flaggers_bot --stop
+# Daemon management
+flaggers_bot daemon start
+flaggers_bot daemon stop
+flaggers_bot daemon restart
+flaggers_bot daemon status
 
-# Restart daemon
-flaggers_bot --restart
-
-# Update to latest version (downloads, replaces binary, restarts daemon)
+# Update to latest version
 flaggers_bot --update
 
 # Show version
