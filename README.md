@@ -91,6 +91,11 @@ cargo test
 
 # Run clippy
 cargo clippy
+
+# Publish new version (patch, minor, or major)
+./publish.sh patch   # 0.1.0 -> 0.1.1
+./publish.sh minor   # 0.1.0 -> 0.2.0
+./publish.sh major   # 0.1.0 -> 1.0.0
 ```
 
 ## License
