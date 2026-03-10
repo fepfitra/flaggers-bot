@@ -6,6 +6,8 @@ REPO="fepfitra/flaggers-bot"
 BINARY_NAME="flaggers_bot"
 INSTALL_DIR="$HOME/.local/bin"
 
+echo "Checking for latest version..."
+
 # Get latest release tag
 LATEST_TAG=$(curl -sL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name"' | sed -E 's/.*"tag_name": "([^"]+)".*/\1/')
 
@@ -31,7 +33,18 @@ echo "Downloading from: $DOWNLOAD_URL"
 mkdir -p "$INSTALL_DIR"
 
 # Download binary
-curl -sL "$DOWNLOAD_URL" -o "$INSTALL_DIR/$BINARY_NAME"
+echo "Downloading..."
+curl -fL "$DOWNLOAD_URL" -o "$INSTALL_DIR/$BINARY_NAME.tmp"
+mv "$INSTALL_DIR/$BINARY_NAME.tmp" "$INSTALL_DIR/$BINARY_NAME"
 chmod +x "$INSTALL_DIR/$BINARY_NAME"
 
+# Verify it's a valid binary
+if ! file "$INSTALL_DIR/$BINARY_NAME" | grep -q "ELF"; then
+    echo "Error: Downloaded file is not a valid binary"
+    rm -f "$INSTALL_DIR/$BINARY_NAME"
+    exit 1
+fi
+
 echo "Installed to $INSTALL_DIR/$BINARY_NAME"
+echo ""
+echo "Run: $INSTALL_DIR/$BINARY_NAME --version"
