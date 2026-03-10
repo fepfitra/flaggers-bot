@@ -3,8 +3,8 @@ use reqwest::Client;
 use serde::Deserialize;
 use serenity::builder::CreateEmbed;
 
-type Error = Box<dyn std::error::Error + Send + Sync>;
-type Context<'a> = poise::Context<'a, (), Error>;
+pub type Error = Box<dyn std::error::Error + Send + Sync>;
+pub type Context<'a> = poise::Context<'a, (), Error>;
 
 #[derive(Debug, Deserialize)]
 struct CtfEvent {

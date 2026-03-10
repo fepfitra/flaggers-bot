@@ -1,8 +1,15 @@
 use crate::config::{load_token, prompt_new_token};
-use crate::ctftime;
+use crate::ctftime::{self, Context, Error};
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::GatewayIntents;
 use tracing::info;
+
+#[poise::command(slash_command, prefix_command)]
+pub async fn version(ctx: Context<'_>) -> Result<(), Error> {
+    ctx.say(format!("flaggers_bot v{}", env!("CARGO_PKG_VERSION")))
+        .await?;
+    Ok(())
+}
 
 pub fn run_bot_blocking() {
     let rt = tokio::runtime::Builder::new_multi_thread()
@@ -22,10 +29,10 @@ fn test_token(token: &str) -> bool {
             .enable_all()
             .build()
             .unwrap();
-        rt.block_on(async {
-            http.get_current_user().await.ok()
-        })
-    }).join().is_ok_and(|r| r.is_some())
+        rt.block_on(async { http.get_current_user().await.ok() })
+    })
+    .join()
+    .is_ok_and(|r| r.is_some())
 }
 
 pub async fn run_bot() {
@@ -46,6 +53,7 @@ pub async fn run_bot() {
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
             commands: vec![
+                version(),
                 ctftime::ctftime_current(),
                 ctftime::ctftime_upcoming(),
                 ctftime::ctftime_top(),
