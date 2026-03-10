@@ -1,5 +1,5 @@
 use crate::commands;
-use crate::config::{load_token, prompt_new_token};
+use crate::config::load_token;
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::GatewayIntents;
 use tracing::info;
@@ -15,29 +15,8 @@ pub fn run_bot_blocking() {
     });
 }
 
-fn test_token(token: &str) -> bool {
-    let http = serenity::Http::new(token);
-    std::thread::spawn(move || {
-        let rt = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .unwrap();
-        rt.block_on(async { http.get_current_user().await.ok() })
-    })
-    .join()
-    .is_ok_and(|r| r.is_some())
-}
-
 pub async fn run_bot() {
-    let mut token = load_token().expect("Failed to load DISCORD_TOKEN");
-
-    // Test token - if invalid, prompt until valid
-    while !test_token(&token) {
-        println!();
-        println!("Invalid token. Discord rejected the authentication.");
-        println!();
-        token = prompt_new_token();
-    }
+    let token = load_token().expect("Failed to load Discord token");
 
     let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;
 

@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::io::{self, Write};
 use std::path::PathBuf;
 
 #[derive(Deserialize, Serialize)]
@@ -16,18 +15,7 @@ fn get_config_path() -> PathBuf {
     config_dir.join("config.json")
 }
 
-fn prompt_for_token() -> Option<String> {
-    print!("> ");
-    io::stdout().flush().ok()?;
-    let mut token = String::new();
-    match io::stdin().read_line(&mut token) {
-        Ok(0) => None,
-        Ok(_) => Some(token.trim().to_string()),
-        Err(_) => None,
-    }
-}
-
-fn save_token(token: &str) -> Result<(), String> {
+pub fn save_token(token: &str) -> Result<(), String> {
     let config_path = get_config_path();
     let config = Config {
         discord_token: token.to_string(),
@@ -36,10 +24,6 @@ fn save_token(token: &str) -> Result<(), String> {
         .map_err(|e| format!("Failed to serialize config: {}", e))?;
     fs::write(&config_path, content).map_err(|e| format!("Failed to write config: {}", e))?;
     Ok(())
-}
-
-fn is_tty() -> bool {
-    atty::is(atty::Stream::Stdin)
 }
 
 pub fn load_token() -> Result<String, String> {
@@ -54,52 +38,5 @@ pub fn load_token() -> Result<String, String> {
         return Ok(config.discord_token);
     }
 
-    // Check if we have a TTY to prompt
-    if !is_tty() {
-        return Err("No Discord token found in config file.".to_string());
-    }
-
-    // Prompt for token
-    println!("\n=== Discord Token Required ===\n");
-    #[allow(clippy::never_loop)]
-    loop {
-        println!("Enter your Discord token (or press Ctrl+C to abort):");
-        match prompt_for_token() {
-            Some(token) if !token.is_empty() => {
-                if let Err(e) = save_token(&token) {
-                    println!("Warning: Failed to save config: {}", e);
-                }
-                return Ok(token);
-            }
-            Some(_) => {
-                println!("\nToken cannot be empty. Please try again.\n");
-            }
-            None => {
-                println!("\nAborted.");
-                std::process::exit(1);
-            }
-        }
-    }
-}
-
-pub fn prompt_new_token() -> String {
-    #[allow(clippy::never_loop)]
-    loop {
-        println!("Enter your Discord token (or press Ctrl+C to abort):");
-        match prompt_for_token() {
-            Some(token) if !token.is_empty() => {
-                if let Err(e) = save_token(&token) {
-                    println!("Warning: Failed to save config: {}", e);
-                }
-                return token;
-            }
-            Some(_) => {
-                println!("\nToken cannot be empty. Please try again.\n");
-            }
-            None => {
-                println!("\nAborted.");
-                std::process::exit(1);
-            }
-        }
-    }
+    Err("No Discord token found in config file.".to_string())
 }
