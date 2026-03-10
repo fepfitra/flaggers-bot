@@ -10,6 +10,58 @@ use cli::Args;
 use daemon::{daemonize, stop_daemon};
 use dotenv::dotenv;
 
+pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    let current_exe = std::env::current_exe()?;
+    let temp_exe = current_exe.with_file_name("flaggers_bot_new");
+
+    let response = reqwest::blocking::get(
+        "https://api.github.com/repos/fepfitra/flaggers-bot/releases/latest",
+    )?;
+    let json: serde_json::Value = response.json()?;
+
+    let tag_name = json["tag_name"]
+        .as_str()
+        .ok_or("Failed to get tag name")?
+        .trim_start_matches('v');
+
+    let current_version = env!("CARGO_PKG_VERSION");
+    if tag_name == current_version {
+        return Err("Already at latest version".into());
+    }
+
+    let os = std::env::consts::OS;
+    let _arch = std::env::consts::ARCH;
+
+    let asset_url = json["assets"]
+        .as_array()
+        .ok_or("Failed to get assets")?
+        .iter()
+        .find(|a| {
+            a["name"]
+                .as_str()
+                .unwrap_or("")
+                .contains(&format!("-{}-", os))
+        })
+        .ok_or("No matching asset found")?["browser_download_url"]
+        .as_str()
+        .ok_or("Failed to get download URL")?;
+
+    println!("Downloading {}...", asset_url);
+    let mut response = reqwest::blocking::get(asset_url)?;
+    let mut file = std::fs::File::create(&temp_exe)?;
+    std::io::copy(&mut response, &mut file)?;
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::metadata(&temp_exe)?.permissions().set_mode(0o755);
+    }
+
+    std::fs::rename(&temp_exe, &current_exe)?;
+
+    Ok(tag_name.to_string())
+}
+
 fn main() {
     dotenv().ok();
 
@@ -18,6 +70,20 @@ fn main() {
     if args.stop {
         stop_daemon(&args.pid_file);
         return;
+    }
+
+    if args.update {
+        match update_binary() {
+            Ok(version) => {
+                println!("Updated to v{}", version);
+                stop_daemon(&args.pid_file);
+                daemonize(&args.pid_file);
+            }
+            Err(e) => {
+                eprintln!("{}", e);
+                std::process::exit(1);
+            }
+        }
     }
 
     if args.restart {

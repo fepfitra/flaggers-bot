@@ -47,6 +47,7 @@ pub async fn run_bot() {
         .options(poise::FrameworkOptions {
             commands: vec![
                 commands::misc::version(),
+                commands::misc::update(),
                 commands::ctftime::ctftime_current(),
                 commands::ctftime::ctftime_upcoming(),
                 commands::ctftime::ctftime_top(),

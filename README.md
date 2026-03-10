@@ -13,11 +13,12 @@ A Discord bot for CTF (Capture The Flag) events.
 ## Commands
 
 ```
-/version             - Show bot version, RAM usage, and binary size
-/ctftime_current    - Show currently running CTFs
-/ctftime_upcoming   - Show upcoming CTFs
-/ctftime_top [year] - Show CTFtime leaderboard
-/ctftime_timeleft   - Show time left for running CTFs
+/version          - Show bot version, RAM usage, and binary size
+/update           - Update bot to latest version
+/ctftime_current  - Show currently running CTFs
+/ctftime_upcoming - Show upcoming CTFs
+/ctftime_top      - Show CTFtime leaderboard
+/ctftime_timeleft - Show time left for running CTFs
 ```
 
 ## Installation
@@ -42,6 +43,9 @@ flaggers_bot --stop
 
 # Restart daemon
 flaggers_bot --restart
+
+# Update to latest version (downloads, replaces binary, restarts daemon)
+flaggers_bot --update
 
 # Show version
 flaggers_bot --version

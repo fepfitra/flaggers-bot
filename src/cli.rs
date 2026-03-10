@@ -19,4 +19,8 @@ pub struct Args {
     /// Restart the daemon
     #[arg(long)]
     pub restart: bool,
+
+    /// Update to latest version
+    #[arg(long)]
+    pub update: bool,
 }
