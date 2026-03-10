@@ -47,10 +47,13 @@ echo "New version: $NEW_VERSION"
 
 sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" "$CARGO_FILE"
 
-git add "$CARGO_FILE"
+git add "$CARGO_FILE" Cargo.lock
 git commit -m "chore: bump version to v$NEW_VERSION"
 
 git tag "v$NEW_VERSION"
+
+echo "Pushing to master..."
+git push origin master
 
 echo "Pushing tag v$NEW_VERSION..."
 git push origin "v$NEW_VERSION"
