@@ -70,7 +70,7 @@ fn get_default_logo() -> &'static str {
 }
 
 /// Shows currently running CTFs
-#[poise::command(slash_command, prefix_command, aliases("now", "running"))]
+#[poise::command(slash_command, prefix_command)]
 pub async fn ctftime_current(ctx: Context<'_>) -> Result<(), Error> {
     let client = Client::new();
     let response = client
@@ -128,7 +128,7 @@ pub async fn ctftime_current(ctx: Context<'_>) -> Result<(), Error> {
 }
 
 /// Shows upcoming CTFs
-#[poise::command(slash_command, prefix_command, aliases("next"))]
+#[poise::command(slash_command, prefix_command)]
 pub async fn ctftime_upcoming(ctx: Context<'_>, amount: Option<i32>) -> Result<(), Error> {
     let amount = amount.unwrap_or(3).min(10);
     let client = Client::new();
@@ -182,7 +182,7 @@ pub async fn ctftime_upcoming(ctx: Context<'_>, amount: Option<i32>) -> Result<(
 }
 
 /// Shows CTFtime leaderboard for a year
-#[poise::command(slash_command, prefix_command, aliases("leaderboard"))]
+#[poise::command(slash_command, prefix_command)]
 pub async fn ctftime_top(ctx: Context<'_>, year: Option<i32>) -> Result<(), Error> {
     let current_year = Utc::now().date_naive().year();
     let year = year.unwrap_or(current_year);
