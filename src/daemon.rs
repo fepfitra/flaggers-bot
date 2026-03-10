@@ -80,7 +80,7 @@ WantedBy=default.target
     Ok(())
 }
 
-pub fn uninstall_bot() -> Result<(), Box<dyn std::error::Error>> {
+pub fn uninstall_systemd_service() -> Result<(), Box<dyn std::error::Error>> {
     let home = dirs::home_dir().ok_or("Cannot find home directory")?;
 
     let _ = Command::new("systemctl")
@@ -93,13 +93,20 @@ pub fn uninstall_bot() -> Result<(), Box<dyn std::error::Error>> {
         println!("Removed systemd service");
     }
 
+    println!("Run: systemctl --user daemon-reload");
+
+    Ok(())
+}
+
+pub fn uninstall_bot() -> Result<(), Box<dyn std::error::Error>> {
+    uninstall_systemd_service()?;
+
+    let home = dirs::home_dir().ok_or("Cannot find home directory")?;
     let bin_path = home.join(".local/bin/flaggers_bot");
     if bin_path.exists() {
         std::fs::remove_file(&bin_path)?;
         println!("Removed binary");
     }
-
-    println!("Run: systemctl --user daemon-reload");
 
     Ok(())
 }

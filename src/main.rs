@@ -133,6 +133,18 @@ fn main() {
                     }
                     return;
                 }
+                cli::DaemonAction::Uninstall => {
+                    match daemon::uninstall_systemd_service() {
+                        Ok(_) => {
+                            println!("Daemon uninstalled successfully");
+                        }
+                        Err(e) => {
+                            eprintln!("Failed to uninstall: {}", e);
+                            std::process::exit(1);
+                        }
+                    }
+                    return;
+                }
             },
         }
     }

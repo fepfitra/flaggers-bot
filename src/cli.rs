@@ -44,4 +44,7 @@ pub enum DaemonAction {
 
     /// Check daemon status
     Status,
+
+    /// Uninstall systemd service
+    Uninstall,
 }
