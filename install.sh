@@ -13,6 +13,15 @@ LATEST_TAG=$(curl -sL "https://api.github.com/repos/$REPO/releases/latest" | gre
 
 echo "Latest version: $LATEST_TAG"
 
+# Check if binary already exists and is up to date
+if [ -f "$INSTALL_DIR/$BINARY_NAME" ]; then
+    CURRENT_VERSION=$("$INSTALL_DIR/$BINARY_NAME" --version 2>/dev/null | awk '{print $2}')
+    if [ "$CURRENT_VERSION" = "$LATEST_TAG" ]; then
+        echo "Already at the latest version ($LATEST_TAG)"
+        exit 0
+    fi
+fi
+
 # Detect OS
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 case "$OS" in
