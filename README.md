@@ -84,13 +84,13 @@ Alternatively, set the `DISCORD_TOKEN` environment variable.
 
 ```bash
 # Run in development mode
-cargo run
+cargo dotenv run -- --version
 
-# Run tests
-cargo test
+# Run in release mode
+cargo dotenv run --release -- --version
 
 # Run clippy
-cargo clippy
+cargo dotenv clippy
 
 # Publish new version (patch, minor, or major)
 ./publish.sh patch   # 0.1.0 -> 0.1.1
