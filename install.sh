@@ -47,4 +47,4 @@ fi
 
 echo "Installed to $INSTALL_DIR/$BINARY_NAME"
 echo ""
-echo "Run: $INSTALL_DIR/$BINARY_NAME --version"
+echo "Run: $BINARY_NAME --version"
