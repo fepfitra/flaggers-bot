@@ -1,26 +1,43 @@
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(name = "flaggers_bot", version = env!("CARGO_PKG_VERSION"))]
 #[command(about = "A Discord bot for CTF events", long_about = None)]
 pub struct Args {
-    #[arg(short, long, default_value = "flaggers_bot.pid")]
-    /// PID file location
-    pub pid_file: String,
-
-    #[arg(short, long, default_value_t = false)]
-    /// Run as daemon in the background
-    pub daemon: bool,
-
-    /// Stop the running daemon
-    #[arg(long, short)]
-    pub stop: bool,
-
-    /// Restart the daemon
-    #[arg(long)]
-    pub restart: bool,
+    #[command(subcommand)]
+    pub command: Option<Commands>,
 
     /// Update to latest version
     #[arg(long)]
     pub update: bool,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum Commands {
+    /// Install systemd service
+    InstallSystemd,
+
+    /// Daemon management
+    Daemon(DaemonArgs),
+}
+
+#[derive(Parser, Debug)]
+pub struct DaemonArgs {
+    #[command(subcommand)]
+    pub action: DaemonAction,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum DaemonAction {
+    /// Start the daemon
+    Start,
+
+    /// Stop the daemon
+    Stop,
+
+    /// Restart the daemon
+    Restart,
+
+    /// Check daemon status
+    Status,
 }

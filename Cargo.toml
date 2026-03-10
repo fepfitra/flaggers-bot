@@ -13,8 +13,8 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 dirs = "5"
 clap = { version = "4", features = ["derive"] }
-daemonize = "0.5"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 dotenv = "0.15"
 sysinfo = "0.32"
+whoami = "1"
