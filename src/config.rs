@@ -17,7 +17,7 @@ fn get_config_path() -> PathBuf {
 }
 
 fn prompt_for_token() -> Option<String> {
-    print!("Enter your Discord token (or press Ctrl+C to abort): ");
+    print!("> ");
     io::stdout().flush().ok()?;
     let mut token = String::new();
     match io::stdin().read_line(&mut token) {
@@ -34,7 +34,8 @@ fn save_token(token: &str) -> Result<(), String> {
     };
     let content = serde_json::to_string_pretty(&config)
         .map_err(|e| format!("Failed to serialize config: {}", e))?;
-    fs::write(&config_path, content).map_err(|e| format!("Failed to write config: {}", e))?;
+    fs::write(&config_path, content)
+        .map_err(|e| format!("Failed to write config: {}", e))?;
     Ok(())
 }
 
@@ -43,20 +44,11 @@ pub fn load_token() -> Result<String, String> {
 
     // Try to load from config
     if config_path.exists() {
-        match fs::read_to_string(&config_path) {
-            Ok(content) => match serde_json::from_str::<Config>(&content) {
-                Ok(config) if !config.discord_token.is_empty() => {
+        if let Ok(content) = fs::read_to_string(&config_path) {
+            if let Ok(config) = serde_json::from_str::<Config>(&content) {
+                if !config.discord_token.is_empty() {
                     return Ok(config.discord_token);
                 }
-                Ok(_) => {
-                    // Config exists but token is empty
-                }
-                Err(_) => {
-                    // Config parse failed
-                }
-            },
-            Err(_) => {
-                // Failed to read config
             }
         }
     }
@@ -69,9 +61,10 @@ pub fn load_token() -> Result<String, String> {
     }
 
     // Prompt for token
+    println!("\n=== Discord Token Required ===\n");
     #[allow(clippy::never_loop)]
     loop {
-        println!("Please enter your Discord token.");
+        println!("Enter your Discord token (or press Ctrl+C to abort):");
         match prompt_for_token() {
             Some(token) if !token.is_empty() => {
                 if let Err(e) = save_token(&token) {
@@ -80,27 +73,20 @@ pub fn load_token() -> Result<String, String> {
                 return Ok(token);
             }
             Some(_) => {
-                println!("Token cannot be empty. Please try again.");
+                println!("\nToken cannot be empty. Please try again.\n");
             }
             None => {
-                println!("Aborted.");
+                println!("\nAborted.");
                 std::process::exit(1);
             }
         }
     }
 }
 
-#[allow(dead_code)]
-pub fn update_token(token: &str) {
-    if let Err(e) = save_token(token) {
-        println!("Warning: Failed to save config: {}", e);
-    }
-}
-
 pub fn prompt_new_token() -> String {
     #[allow(clippy::never_loop)]
     loop {
-        println!("Invalid token. Please enter a new Discord token.");
+        println!("Enter your Discord token (or press Ctrl+C to abort):");
         match prompt_for_token() {
             Some(token) if !token.is_empty() => {
                 if let Err(e) = save_token(&token) {
@@ -109,10 +95,10 @@ pub fn prompt_new_token() -> String {
                 return token;
             }
             Some(_) => {
-                println!("Token cannot be empty. Please try again.");
+                println!("\nToken cannot be empty. Please try again.\n");
             }
             None => {
-                println!("Aborted.");
+                println!("\nAborted.");
                 std::process::exit(1);
             }
         }

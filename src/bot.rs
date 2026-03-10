@@ -31,9 +31,11 @@ fn test_token(token: &str) -> bool {
 pub async fn run_bot() {
     let mut token = load_token().expect("Failed to load DISCORD_TOKEN");
 
-    // Test token before starting
-    if !test_token(&token) {
+    // Test token - if invalid, prompt until valid
+    while !test_token(&token) {
+        println!();
         println!("Invalid token. Discord rejected the authentication.");
+        println!();
         token = prompt_new_token();
     }
 
