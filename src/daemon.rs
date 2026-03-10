@@ -2,6 +2,7 @@ use daemonize::Daemonize;
 use std::fs::File;
 
 pub fn stop_daemon(pid_file: &str) {
+    // try to kill by PID file
     if let Ok(pid_str) = std::fs::read_to_string(pid_file)
         && let Ok(pid) = pid_str.trim().parse::<u32>()
     {
@@ -11,9 +12,17 @@ pub fn stop_daemon(pid_file: &str) {
             .output()
             .ok();
         std::fs::remove_file(pid_file).ok();
-        return;
     }
-    eprintln!("PID file not found or invalid");
+
+    // kill any other running instances by name
+    if let Ok(output) = std::process::Command::new("pkill")
+        .arg("-f")
+        .arg("flaggers_bot")
+        .output()
+        && output.status.success()
+    {
+        println!("Killed other running instances");
+    }
 }
 
 pub fn daemonize(pid_file: &str) {
