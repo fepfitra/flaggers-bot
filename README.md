@@ -21,16 +21,22 @@ ctftime timeleft  - Show time left for running CTFs
 
 ## Installation
 
+### Quick Install
+
+```bash
+curl -sL https://raw.githubusercontent.com/fepfitra/flaggers-bot/master/install.sh | sh
+```
+
 ### From Release
 
-Download the latest binary from [GitHub Releases](https://github.com/your-repo/flaggers_bot/releases).
+Download the latest binary from [GitHub Releases](https://github.com/fepfitra/flaggers-bot/releases).
 
 ### Build from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/flaggers_bot.git
-cd flaggers_bot
+git clone https://github.com/fepfitra/flaggers-bot.git
+cd flaggers-bot
 
 # Build
 cargo build --release
