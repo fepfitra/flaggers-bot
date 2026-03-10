@@ -28,21 +28,6 @@ A Discord bot for CTF (Capture The Flag) events.
 curl -sL https://raw.githubusercontent.com/fepfitra/flaggers-bot/master/install.sh | sh
 ```
 
-### From Release
-
-Download the latest binary from [GitHub Releases](https://github.com/fepfitra/flaggers-bot/releases).
-
-### Build from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/fepfitra/flaggers-bot.git
-cd flaggers_bot
-
-# Build
-cargo build --release
-```
-
 ## Usage
 
 ```bash
@@ -57,6 +42,21 @@ flaggers_bot --stop
 
 # Show version
 flaggers_bot --version
+```
+
+### From Release
+
+Download the latest binary from [GitHub Releases](https://github.com/fepfitra/flaggers-bot/releases).
+
+### Build from Source
+
+```bash
+# Clone the repository
+git clone https://github.com/fepfitra/flaggers-bot.git
+cd flaggers_bot
+
+# Build
+cargo build --release
 ```
 
 ## Configuration
