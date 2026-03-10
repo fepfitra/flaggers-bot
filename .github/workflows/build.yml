@@ -10,8 +10,33 @@ permissions:
   contents: write
 
 jobs:
+  update-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get tag
+        id: get_tag
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Update version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
+
+      - name: Commit and push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add Cargo.toml
+          git commit -m "chore: bump version to ${{ steps.get_tag.outputs.TAG }}"
+          git push origin master
+
   build:
     runs-on: ${{ matrix.os }}
+    needs: update-version
     strategy:
       fail-fast: false
       matrix:
@@ -31,12 +56,6 @@ jobs:
       - name: Get tag
         id: get_tag
         run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: Set version from tag (Ubuntu only)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
