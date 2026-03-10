@@ -38,6 +38,10 @@ fn save_token(token: &str) -> Result<(), String> {
     Ok(())
 }
 
+fn is_tty() -> bool {
+    atty::is(atty::Stream::Stdin)
+}
+
 pub fn load_token() -> Result<String, String> {
     let config_path = get_config_path();
 
@@ -55,6 +59,11 @@ pub fn load_token() -> Result<String, String> {
         && !token.is_empty()
     {
         return Ok(token);
+    }
+
+    // Check if we have a TTY to prompt
+    if !is_tty() {
+        return Err("No Discord token found. Set DISCORD_TOKEN env var or config file.".to_string());
     }
 
     // Prompt for token
