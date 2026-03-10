@@ -21,6 +21,24 @@ A Discord bot for CTF (Capture The Flag) events.
 /ctftime_timeleft - Show time left for running CTFs
 ```
 
+## Discord Bot Setup
+
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
+2. Click **New Application** and give it a name
+3. Go to **Bot** section on the left sidebar
+4. Click **Reset Token** to get your bot token
+5. Under **Privileged Gateway Intents**, enable:
+   - `MESSAGE CONTENT INTENT` (required for commands)
+6. Go to **OAuth2 > URL Generator**
+7. Under **Scopes**, select:
+   - `bot`
+8. Under **Bot Permissions**, select:
+   - `Send Messages`
+   - `Use Slash Commands`
+9. Copy the generated URL and invite the bot to your server
+
+**Note:** Anyone inviting this bot to their server needs `Manage Server` permission in that server.
+
 ## Installation
 
 ### Quick Install
