@@ -1,5 +1,6 @@
 mod bot;
 mod cli;
+mod config;
 mod ctftime;
 mod daemon;
 

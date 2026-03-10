@@ -1,3 +1,4 @@
+use crate::config::load_token;
 use crate::ctftime;
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::GatewayIntents;
@@ -15,7 +16,7 @@ pub fn run_bot_blocking() {
 }
 
 pub async fn run_bot() {
-    let token = std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN");
+    let token = load_token().expect("Failed to load DISCORD_TOKEN");
     let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;
 
     info!("Starting bot");
