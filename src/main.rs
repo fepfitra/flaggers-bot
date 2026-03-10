@@ -9,7 +9,7 @@ use clap::Parser;
 use cli::{Args, Commands};
 use daemon::{
     daemon_status, install_systemd_service, restart_daemon_systemd, start_daemon_systemd,
-    stop_daemon,
+    stop_daemon, uninstall_bot,
 };
 
 pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
@@ -153,6 +153,19 @@ fn main() {
                 std::process::exit(1);
             }
         }
+    }
+
+    if args.uninstall {
+        match uninstall_bot() {
+            Ok(_) => {
+                println!("Bot uninstalled successfully");
+            }
+            Err(e) => {
+                eprintln!("Failed to uninstall: {}", e);
+                std::process::exit(1);
+            }
+        }
+        return;
     }
 
     tracing_subscriber::fmt::init();

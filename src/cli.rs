@@ -10,6 +10,10 @@ pub struct Args {
     /// Update to latest version
     #[arg(long)]
     pub update: bool,
+
+    /// Uninstall bot (removes systemd service and binary)
+    #[arg(long)]
+    pub uninstall: bool,
 }
 
 #[derive(Subcommand, Debug)]
