@@ -43,14 +43,12 @@ pub fn load_token() -> Result<String, String> {
     let config_path = get_config_path();
 
     // Try to load from config
-    if config_path.exists() {
-        if let Ok(content) = fs::read_to_string(&config_path) {
-            if let Ok(config) = serde_json::from_str::<Config>(&content) {
-                if !config.discord_token.is_empty() {
-                    return Ok(config.discord_token);
-                }
-            }
-        }
+    if config_path.exists()
+        && let Ok(content) = fs::read_to_string(&config_path)
+        && let Ok(config) = serde_json::from_str::<Config>(&content)
+        && !config.discord_token.is_empty()
+    {
+        return Ok(config.discord_token);
     }
 
     // Try environment variable
