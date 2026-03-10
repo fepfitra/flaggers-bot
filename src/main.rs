@@ -68,16 +68,12 @@ pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
-        std::fs::metadata(&temp_exe)?.permissions().set_mode(0o755);
+        let mut perms = std::fs::metadata(&temp_exe)?.permissions();
+        perms.set_mode(0o755);
+        std::fs::set_permissions(&temp_exe, perms)?;
     }
 
     std::fs::rename(&temp_exe, &current_exe)?;
-
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        std::fs::metadata(&current_exe)?.permissions().set_mode(0o755);
-    }
 
     Ok(tag_name.to_string())
 }
