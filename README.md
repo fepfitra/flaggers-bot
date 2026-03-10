@@ -26,7 +26,7 @@ A Discord bot for CTF (Capture The Flag) events.
 1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
 2. Click **New Application** and give it a name
 3. Go to **Bot** section on the left sidebar
-4. Click **Reset Token** to get your bot token
+4. Click **Reset Token** to get your bot token (save it or you can regenerate it later)
 5. Under **Privileged Gateway Intents**, enable:
    - `MESSAGE CONTENT INTENT` (required for commands)
 6. Go to **OAuth2 > URL Generator**
@@ -85,6 +85,8 @@ cargo build --release
 ```
 
 ## Configuration
+
+The bot requires a Discord bot token (see [Discord Bot Setup](#discord-bot-setup) step 4).
 
 On first run, the bot will prompt for your Discord token if not found in environment or config file.
 
