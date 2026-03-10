@@ -15,4 +15,8 @@ pub struct Args {
     /// Stop the running daemon
     #[arg(long, short)]
     pub stop: bool,
+
+    /// Restart the daemon
+    #[arg(long)]
+    pub restart: bool,
 }

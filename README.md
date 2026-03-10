@@ -40,6 +40,9 @@ flaggers_bot --daemon
 # Stop daemon
 flaggers_bot --stop
 
+# Restart daemon
+flaggers_bot --restart
+
 # Show version
 flaggers_bot --version
 ```

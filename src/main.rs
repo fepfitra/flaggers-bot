@@ -20,7 +20,11 @@ fn main() {
         return;
     }
 
-    if args.daemon {
+    if args.restart {
+        stop_daemon(&args.pid_file);
+    }
+
+    if args.daemon || args.restart {
         daemonize(&args.pid_file);
     }
 
