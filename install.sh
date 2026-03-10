@@ -5,8 +5,8 @@ set -e
 REPO="fepfitra/flaggers-bot"
 BINARY_NAME="flaggers_bot"
 INSTALL_DIR="$HOME/.local/bin"
-CONFIG_DIR="$HOME/.config/flaggers_bot"
-CONFIG_FILE="$CONFIG_DIR/config.json"
+CONFIG_FILE="$HOME/.config/flaggers_bot/config.json"
+LOG_FILE="$HOME/flaggers_bot.log"
 
 # Get latest release tag
 LATEST_TAG=$(curl -sL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name"' | sed -E 's/.*"tag_name": "([^"]+)".*/\1/')
@@ -48,30 +48,21 @@ if [ -f "$HOME/flaggers_bot.pid" ]; then
     fi
 fi
 
-# Check for existing config or ask for token
-if [ -f "$CONFIG_FILE" ]; then
-    echo "Config file found"
-else
-    echo "No config found. Please enter your Discord token:"
-    read -s TOKEN
-    if [ -z "$TOKEN" ]; then
-        echo "Token is required. Aborting."
-        exit 1
-    fi
-    
-    # Create config directory and file
-    mkdir -p "$CONFIG_DIR"
-    echo "{\"discord_token\": \"$TOKEN\"}" > "$CONFIG_FILE"
-    echo "Config saved to $CONFIG_FILE"
-fi
-
-# Start new bot in background with env
+# Start bot - it will prompt for token if needed
 cd "$HOME"
-export DISCORD_TOKEN=$(grep -o '"discord_token"[[:space:]]*:[[:space:]]*"[^"]*"' "$CONFIG_FILE" | sed 's/.*"discord_token"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
-
-nohup "$INSTALL_DIR/$BINARY_NAME" > flaggers_bot.log 2>&1 &
+nohup "$INSTALL_DIR/$BINARY_NAME" > "$LOG_FILE" 2>&1 &
 NEW_PID=$!
 echo "$NEW_PID" > "$HOME/flaggers_bot.pid"
 
 echo "Bot started with PID: $NEW_PID"
-echo "Log file: $HOME/flaggers_bot.log"
+echo "Log file: $LOG_FILE"
+
+# Wait and check
+sleep 5
+if ! kill -0 "$NEW_PID" 2>/dev/null; then
+    echo "Bot exited. Check log:"
+    cat "$LOG_FILE"
+    exit 1
+fi
+
+echo "Bot is running!"
