@@ -11,7 +11,6 @@ use daemon::{
     daemon_status, install_systemd_service, restart_daemon_systemd, start_daemon_systemd,
     stop_daemon,
 };
-use dotenv::dotenv;
 
 pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let current_exe = std::env::current_exe()?;
@@ -82,8 +81,6 @@ pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync
 }
 
 fn main() {
-    dotenv().ok();
-
     let args = Args::parse();
 
     if let Some(command) = args.command {

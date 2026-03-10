@@ -54,16 +54,9 @@ pub fn load_token() -> Result<String, String> {
         return Ok(config.discord_token);
     }
 
-    // Try environment variable
-    if let Ok(token) = std::env::var("DISCORD_TOKEN")
-        && !token.is_empty()
-    {
-        return Ok(token);
-    }
-
     // Check if we have a TTY to prompt
     if !is_tty() {
-        return Err("No Discord token found. Set DISCORD_TOKEN env var or config file.".to_string());
+        return Err("No Discord token found in config file.".to_string());
     }
 
     // Prompt for token

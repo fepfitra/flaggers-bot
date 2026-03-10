@@ -62,8 +62,6 @@ ExecStart={}
 Restart=always
 RestartSec=5
 
-Environment=DISCORD_TOKEN=
-
 [Install]
 WantedBy=default.target
 "#,

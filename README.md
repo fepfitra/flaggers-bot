@@ -90,7 +90,7 @@ cargo build --release
 
 The bot requires a Discord bot token (see [Discord Bot Setup](#discord-bot-setup) step 4).
 
-On first run, the bot will prompt for your Discord token if not found in environment or config file.
+On first run, the bot will prompt for your Discord token.
 
 The token is saved to `~/.config/flaggers_bot/config.json`:
 
@@ -100,19 +100,17 @@ The token is saved to `~/.config/flaggers_bot/config.json`:
 }
 ```
 
-Alternatively, set the `DISCORD_TOKEN` environment variable.
-
 ## Development
 
 ```bash
 # Run in development mode
-cargo dotenv run -- --version
+cargo run -- --version
 
 # Run in release mode
-cargo dotenv run --release -- --version
+cargo run --release -- --version
 
 # Run clippy
-cargo dotenv clippy
+cargo clippy
 
 # Publish new version (patch, minor, or major)
 ./publish.sh patch   # 0.1.0 -> 0.1.1
