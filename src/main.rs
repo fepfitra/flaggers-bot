@@ -1,27 +1,12 @@
+mod cli;
 mod ctftime;
 mod daemon;
 
 use clap::Parser;
+use cli::Args;
 use daemon::{daemonize, stop_daemon};
 use poise::serenity_prelude as serenity;
 use tracing::info;
-
-#[derive(Parser, Debug)]
-#[command(name = "flaggers_bot")]
-#[command(about = "A Discord bot for CTF events", long_about = None)]
-pub struct Args {
-    #[arg(short, long, default_value = "flaggers_bot.pid")]
-    /// PID file location
-    pub pid_file: String,
-
-    #[arg(short, long, default_value_t = false)]
-    /// Run as daemon in the background
-    pub daemon: bool,
-
-    /// Stop the running daemon
-    #[arg(long, short)]
-    pub stop: bool,
-}
 
 fn run_bot_blocking() {
     let rt = tokio::runtime::Builder::new_multi_thread()
