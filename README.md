@@ -37,10 +37,26 @@ Download the latest binary from [GitHub Releases](https://github.com/fepfitra/fl
 ```bash
 # Clone the repository
 git clone https://github.com/fepfitra/flaggers-bot.git
-cd flaggers-bot
+cd flaggers_bot
 
 # Build
 cargo build --release
+```
+
+## Usage
+
+```bash
+# Run normally
+flaggers_bot
+
+# Run as daemon (Unix only)
+flaggers_bot --daemon
+
+# Stop daemon
+flaggers_bot --stop
+
+# Show version
+flaggers_bot --version
 ```
 
 ## Configuration
@@ -56,22 +72,6 @@ The token is saved to `~/.config/flaggers_bot/config.json`:
 ```
 
 Alternatively, set the `DISCORD_TOKEN` environment variable.
-
-## Usage
-
-```bash
-# Run normally
-./target/release/flaggers_bot
-
-# Run as daemon (Unix only)
-./target/release/flaggers_bot --daemon
-
-# Stop daemon
-./target/release/flaggers_bot --stop
-
-# Show version
-./target/release/flaggers_bot --version
-```
 
 ## Development
 
