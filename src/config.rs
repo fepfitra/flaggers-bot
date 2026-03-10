@@ -34,8 +34,7 @@ fn save_token(token: &str) -> Result<(), String> {
     };
     let content = serde_json::to_string_pretty(&config)
         .map_err(|e| format!("Failed to serialize config: {}", e))?;
-    fs::write(&config_path, content)
-        .map_err(|e| format!("Failed to write config: {}", e))?;
+    fs::write(&config_path, content).map_err(|e| format!("Failed to write config: {}", e))?;
     Ok(())
 }
 

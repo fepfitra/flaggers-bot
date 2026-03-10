@@ -18,10 +18,9 @@ pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync
         .user_agent("flaggers-bot")
         .build()?;
 
-    let response = client.get(
-        "https://api.github.com/repos/fepfitra/flaggers-bot/releases/latest",
-    )
-    .send()?;
+    let response = client
+        .get("https://api.github.com/repos/fepfitra/flaggers-bot/releases/latest")
+        .send()?;
 
     if !response.status().is_success() {
         return Err(format!("GitHub API error: {}", response.status()).into());
