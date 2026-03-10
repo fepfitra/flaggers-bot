@@ -13,16 +13,6 @@ pub fn stop_daemon(pid_file: &str) {
             .ok();
         std::fs::remove_file(pid_file).ok();
     }
-
-    // kill any other running instances by name
-    if let Ok(output) = std::process::Command::new("pkill")
-        .arg("-f")
-        .arg("flaggers_bot")
-        .output()
-        && output.status.success()
-    {
-        println!("Killed other running instances");
-    }
 }
 
 pub fn daemonize(pid_file: &str) {

@@ -92,9 +92,8 @@ fn main() {
         match update_binary() {
             Ok(version) => {
                 println!("Updated to v{}", version);
-                stop_daemon(&args.pid_file);
-                std::thread::sleep(std::time::Duration::from_secs(1));
                 daemonize(&args.pid_file);
+                return;
             }
             Err(e) => {
                 eprintln!("{}", e);
@@ -112,5 +111,10 @@ fn main() {
     }
 
     tracing_subscriber::fmt::init();
+
+    if args.restart {
+        println!("Bot restarted successfully");
+    }
+
     run_bot_blocking();
 }
