@@ -215,6 +215,8 @@ pub async fn run_bot() {
                 commands::ctftime::ctftime_top(),
                 commands::ctftime::ctftime_timeleft(),
                 commands::ctftime::dump(),
+                commands::ctftime::archive(),
+                commands::ctftime::active(),
             ],
             event_handler: |ctx, event, framework, data| {
                 Box::pin(event_handler(ctx, event, framework, data))

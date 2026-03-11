@@ -20,6 +20,8 @@ A Discord bot for CTF (Capture The Flag) events.
 /ctftime_top      - Show CTFtime leaderboard
 /ctftime_timeleft - Show time left for running CTFs
 /dump             - Dump challenges from a CTFd site (creates threads)
+/archive           - Move channel from active to archive category
+/active            - Move channel from archive to active category
 ```
 
 ### /dump Command
