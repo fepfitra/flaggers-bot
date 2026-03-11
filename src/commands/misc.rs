@@ -1,5 +1,6 @@
 use crate::commands::ctftime::{Context, Error, REPO_URL};
 use crate::update_binary;
+use crate::daemon;
 use poise::serenity_prelude::CreateEmbed;
 use sysinfo::{Pid, System};
 
@@ -45,10 +46,12 @@ pub async fn update(ctx: Context<'_>) -> Result<(), Error> {
         Ok(version) => {
             ctx.say(format!("Updated to v{}. Restarting...", version))
                 .await?;
-            if let Ok(exe) = std::env::current_exe() {
-                let _ = std::process::Command::new(exe).arg("--restart").spawn();
+            if daemon::restart_daemon_systemd() {
+                std::process::exit(0);
+            } else {
+                ctx.say("Updated but failed to restart. Restart manually with `flaggers_bot daemon restart`")
+                    .await?;
             }
-            std::process::exit(0);
         }
         Err(e) => {
             let msg = e.to_string();
