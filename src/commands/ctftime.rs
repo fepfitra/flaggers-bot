@@ -118,7 +118,7 @@ async fn download_and_upload_files(
                     match response.bytes().await {
                         Ok(bytes) => {
                             let filename = url.split('/')
-                                .last()
+                                .next_back()
                                 .unwrap_or("file")
                                 .split('?')
                                 .next()
