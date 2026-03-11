@@ -133,6 +133,22 @@ fn main() {
                     }
                     return;
                 }
+                cli::DaemonAction::Logs => {
+                    let output = std::process::Command::new("journalctl")
+                        .args(["--user", "-u", "flaggers_bot", "-n", "50", "--no-pager"])
+                        .output();
+
+                    match output {
+                        Ok(o) => {
+                            println!("{}", String::from_utf8_lossy(&o.stdout));
+                        }
+                        Err(e) => {
+                            eprintln!("Failed to get logs: {}", e);
+                            std::process::exit(1);
+                        }
+                    }
+                    return;
+                }
                 cli::DaemonAction::Uninstall => match daemon::uninstall_systemd_service() {
                     Ok(_) => {
                         println!("Daemon uninstalled successfully");
