@@ -46,7 +46,9 @@ pub fn restart_daemon_systemd() -> bool {
 
 pub fn install_systemd_service() -> Result<(), Box<dyn std::error::Error>> {
     let home = dirs::home_dir().ok_or("Cannot find home directory")?;
-    let bin_path = home.join(".local/bin/flaggers_bot");
+    let bin_path = std::env::current_exe()
+        .map(|p| p.to_path_buf())
+        .unwrap_or_else(|_| home.join(".local/bin/flaggers_bot"));
 
     let service_content = format!(
         r#"[Unit]
