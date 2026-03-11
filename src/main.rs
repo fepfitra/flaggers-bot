@@ -78,70 +78,62 @@ pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync
 fn main() {
     let args = Args::parse();
 
-    if let Some(command) = args.command {
-        match command {
-            Commands::InstallSystemd => {
-                match daemon::install_systemd_service() {
-                    Ok(_) => {}
-                    Err(e) => {
-                        eprintln!("Failed to install systemd service: {}", e);
-                        std::process::exit(1);
-                    }
+    match args.command {
+        Commands::InstallSystemd => {
+            match daemon::install_systemd_service() {
+                Ok(_) => {}
+                Err(e) => {
+                    eprintln!("Failed to install systemd service: {}", e);
+                    std::process::exit(1);
                 }
-                return;
             }
-            Commands::Daemon(daemon_args) => match daemon_args.action {
-                cli::DaemonAction::Start => {
-                    if daemon::start_daemon_systemd() {
-                        println!("Daemon started via systemd");
-                    } else {
-                        eprintln!(
-                            "Failed to start daemon. Install systemd service first: flaggers_bot install-systemd"
-                        );
-                        std::process::exit(1);
-                    }
-                    return;
-                }
-                cli::DaemonAction::Stop => {
-                    if daemon::stop_daemon() {
-                        println!("Daemon stopped");
-                    } else {
-                        eprintln!("Failed to stop daemon");
-                        std::process::exit(1);
-                    }
-                    return;
-                }
-                cli::DaemonAction::Restart => {
-                    if daemon::restart_daemon_systemd() {
-                        println!("Daemon restarted via systemd");
-                    } else {
-                        eprintln!("Failed to restart daemon");
-                        std::process::exit(1);
-                    }
-                    return;
-                }
-                cli::DaemonAction::Status => {
-                    if daemon::daemon_status() {
-                        println!("Daemon is running");
-                    } else {
-                        println!("Daemon is not running");
-                    }
-                    return;
-                }
-                cli::DaemonAction::Uninstall => {
-                    match daemon::uninstall_systemd_service() {
-                        Ok(_) => {
-                            println!("Daemon uninstalled successfully");
-                        }
-                        Err(e) => {
-                            eprintln!("Failed to uninstall: {}", e);
-                            std::process::exit(1);
-                        }
-                    }
-                    return;
-                }
-            },
         }
+        Commands::Daemon(daemon_args) => match daemon_args.action {
+            cli::DaemonAction::Start => {
+                if daemon::start_daemon_systemd() {
+                    println!("Daemon started via systemd");
+                } else {
+                    eprintln!(
+                        "Failed to start daemon. Install systemd service first: flaggers_bot install-systemd"
+                    );
+                    std::process::exit(1);
+                }
+            }
+            cli::DaemonAction::Stop => {
+                if daemon::stop_daemon() {
+                    println!("Daemon stopped");
+                } else {
+                    eprintln!("Failed to stop daemon");
+                    std::process::exit(1);
+                }
+            }
+            cli::DaemonAction::Restart => {
+                if daemon::restart_daemon_systemd() {
+                    println!("Daemon restarted via systemd");
+                } else {
+                    eprintln!("Failed to restart daemon");
+                    std::process::exit(1);
+                }
+            }
+            cli::DaemonAction::Status => {
+                if daemon::daemon_status() {
+                    println!("Daemon is running");
+                } else {
+                    println!("Daemon is not running");
+                }
+            }
+            cli::DaemonAction::Uninstall => {
+                match daemon::uninstall_systemd_service() {
+                    Ok(_) => {
+                        println!("Daemon uninstalled successfully");
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to uninstall: {}", e);
+                        std::process::exit(1);
+                    }
+                }
+            }
+        },
     }
 
     if args.update {
