@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 #[command(about = "A Discord bot for CTF events", long_about = None)]
 pub struct Args {
     #[command(subcommand)]
-    pub command: Commands,
+    pub command: Option<Commands>,
 
     /// Update to latest version
     #[arg(long)]

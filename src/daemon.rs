@@ -59,7 +59,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory={}
-ExecStart={}
+ExecStart={} run
 Restart=always
 RestartSec=5
 
