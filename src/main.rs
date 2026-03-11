@@ -80,12 +80,17 @@ fn main() {
 
     match args.command {
         Commands::InstallSystemd => match daemon::install_systemd_service() {
-            Ok(_) => {}
+            Ok(_) => return,
             Err(e) => {
                 eprintln!("Failed to install systemd service: {}", e);
                 std::process::exit(1);
             }
         },
+        Commands::Run => {
+            tracing_subscriber::fmt::init();
+            bot::run_bot_blocking();
+            return;
+        }
         Commands::Daemon(daemon_args) => match daemon_args.action {
             cli::DaemonAction::Start => {
                 if daemon::start_daemon_systemd() {
@@ -96,6 +101,7 @@ fn main() {
                     );
                     std::process::exit(1);
                 }
+                return;
             }
             cli::DaemonAction::Stop => {
                 if daemon::stop_daemon() {
@@ -104,6 +110,7 @@ fn main() {
                     eprintln!("Failed to stop daemon");
                     std::process::exit(1);
                 }
+                return;
             }
             cli::DaemonAction::Restart => {
                 if daemon::restart_daemon_systemd() {
@@ -163,6 +170,6 @@ fn main() {
         return;
     }
 
-    tracing_subscriber::fmt::init();
-    bot::run_bot_blocking();
+    println!("No command specified. Use --help for usage information.");
+    std::process::exit(1);
 }

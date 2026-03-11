@@ -21,6 +21,9 @@ pub enum Commands {
     /// Install systemd service
     InstallSystemd,
 
+    /// Run the bot
+    Run,
+
     /// Daemon management
     Daemon(DaemonArgs),
 }
