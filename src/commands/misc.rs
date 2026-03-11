@@ -1,6 +1,6 @@
 use crate::commands::ctftime::{Context, Error, REPO_URL};
-use crate::update_binary;
 use crate::daemon;
+use crate::update_binary;
 use poise::serenity_prelude::CreateEmbed;
 use sysinfo::{Pid, System};
 
@@ -58,7 +58,7 @@ pub async fn update(ctx: Context<'_>) -> Result<(), Error> {
             if msg.contains("Already at latest") {
                 ctx.say("Already at the latest version!").await?;
             } else {
-                ctx.say(format!("Update failed: {}\n\nThe old binary doesn't seem to exist, it might have been moved.", e)).await?;
+                ctx.say(format!("Update failed: {}.", e)).await?;
             }
         }
     }
