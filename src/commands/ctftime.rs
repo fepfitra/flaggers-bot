@@ -8,8 +8,7 @@ use serde::Deserialize;
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub type Context<'a> = poise::Context<'a, (), Error>;
 
-pub const REPO_URL: &str =
-    "[GitHub](https://github.com/fepfitra/flaggers-bot) - Contributions are welcome!";
+pub const REPO_URL: &str = "[GitHub](https://github.com/fepfitra/flaggers-bot) - Contributions and feature requests are welcome!";
 
 pub fn sanitize_channel_name(name: &str) -> String {
     name.to_lowercase()
