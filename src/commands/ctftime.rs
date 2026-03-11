@@ -80,12 +80,18 @@ fn get_default_logo() -> &'static str {
     "https://pbs.twimg.com/profile_images/2189766987/ctftime-logo-avatar_400x400.png"
 }
 
-fn create_ctf_button(ctf_name: &str) -> Vec<serenity::CreateActionRow> {
-    let button = serenity::CreateButton::new(format!("create_ctf_channel:{}", ctf_name))
-        .label("Create CTF Channel")
+fn create_ctf_buttons(ctf_name: &str) -> Vec<serenity::CreateActionRow> {
+    let create_btn = serenity::CreateButton::new(format!("create_ctf_channel:{}", ctf_name))
+        .label("Create")
         .style(serenity::ButtonStyle::Primary);
-    
-    vec![serenity::CreateActionRow::Buttons(vec![button])]
+
+    let join_btn = serenity::CreateButton::new(format!("join_ctf_channel:{}", ctf_name))
+        .label("Join")
+        .style(serenity::ButtonStyle::Secondary);
+
+    vec![serenity::CreateActionRow::Buttons(vec![
+        create_btn, join_btn,
+    ])]
 }
 
 fn create_http_client() -> Client {
@@ -139,12 +145,13 @@ pub async fn ctftime_current(ctx: Context<'_>) -> Result<(), Error> {
                 .color(0xf23a55);
 
             let ctf_name = sanitize_channel_name(&event.title);
-            
+
             ctx.send(
                 poise::CreateReply::default()
                     .embed(embed)
-                    .components(create_ctf_button(&ctf_name))
-            ).await?;
+                    .components(create_ctf_buttons(&ctf_name)),
+            )
+            .await?;
         }
     }
 
@@ -200,12 +207,13 @@ pub async fn ctftime_upcoming(ctx: Context<'_>, amount: Option<i32>) -> Result<(
             .color(0xf23a55);
 
         let ctf_name = sanitize_channel_name(&event.title);
-        
+
         ctx.send(
             poise::CreateReply::default()
                 .embed(embed)
-                .components(create_ctf_button(&ctf_name))
-        ).await?;
+                .components(create_ctf_buttons(&ctf_name)),
+        )
+        .await?;
     }
 
     Ok(())
