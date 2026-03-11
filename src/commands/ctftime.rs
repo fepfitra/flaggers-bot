@@ -4,6 +4,7 @@ use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::CreateEmbed;
 use reqwest::Client;
 use serde::Deserialize;
+use tracing::{debug, info};
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub type Context<'a> = poise::Context<'a, (), Error>;
@@ -101,6 +102,59 @@ fn create_http_client() -> Client {
         .unwrap()
 }
 
+async fn download_and_upload_files(
+    _ctx: &Context<'_>,
+    http: &serenity::Http,
+    thread_id: serenity::ChannelId,
+    file_urls: Vec<String>,
+    client: &Client,
+) {
+    for url in file_urls {
+        tracing::info!("Downloading file: {}", url);
+        
+        match client.get(&url).send().await {
+            Ok(response) => {
+                if response.status().is_success() {
+                    match response.bytes().await {
+                        Ok(bytes) => {
+                            let filename = url.split('/')
+                                .last()
+                                .unwrap_or("file")
+                                .split('?')
+                                .next()
+                                .unwrap_or("file");
+                            
+                            tracing::info!("Uploading file: {} ({} bytes)", filename, bytes.len());
+                            
+                            let attachment = serenity::CreateAttachment::bytes(
+                                bytes,
+                                filename.to_string(),
+                            );
+                            
+                            if let Err(e) = thread_id.send_message(http, 
+                                serenity::CreateMessage::new()
+                                    .add_file(attachment)
+                            ).await {
+                                tracing::error!("Failed to upload file {}: {}", filename, e);
+                            } else {
+                                tracing::info!("Successfully uploaded: {}", filename);
+                            }
+                        }
+                        Err(e) => {
+                            tracing::error!("Failed to read file bytes: {}", e);
+                        }
+                    }
+                } else {
+                    tracing::error!("Failed to download file: HTTP {}", response.status());
+                }
+            }
+            Err(e) => {
+                tracing::error!("Failed to download file: {}", e);
+            }
+        }
+    }
+}
+
 /// Shows currently running CTFs
 #[poise::command(slash_command, prefix_command)]
 pub async fn ctftime_current(ctx: Context<'_>) -> Result<(), Error> {
@@ -156,7 +210,7 @@ pub async fn ctftime_current(ctx: Context<'_>) -> Result<(), Error> {
     }
 
     if !found {
-        ctx.say("No CTFs currently running! Check out `>ctftime upcoming`, and `>ctftime countdown` to see when CTFs will start!").await?;
+        ctx.say("No CTFs currently running! Check out `/ctftime_upcoming` to see upcoming CTFs!").await?;
     }
 
     Ok(())
@@ -298,7 +352,7 @@ pub async fn ctftime_timeleft(ctx: Context<'_>) -> Result<(), Error> {
     }
 
     if !found {
-        ctx.say("No CTFs are running! Use `>ctftime upcoming` or `>ctftime countdown` to see upcoming CTFs").await?;
+        ctx.say("No CTFs are running! Use `/ctftime_upcoming` to see upcoming CTFs").await?;
     }
 
     Ok(())
@@ -426,6 +480,7 @@ pub async fn dump(
 
         let detail_url = format!("{}/api/v1/challenges/{}", base_url, id);
         let mut description = String::new();
+        let mut view_html = String::new();
 
         if let Ok(resp) = client
             .get(&detail_url)
@@ -444,6 +499,13 @@ pub async fn dump(
                 .unwrap_or("");
 
             description = convert(html, None).unwrap_or_else(|_| html.to_string());
+            
+            view_html = detail
+                .data
+                .get("view")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
         }
 
         let name = challenge
@@ -470,6 +532,26 @@ pub async fn dump(
             String::new()
         } else {
             format!("\n**Tags:** {}", tags.join(", "))
+        };
+
+        let file_links: Vec<String> = if view_html.is_empty() {
+            Vec::new()
+        } else {
+            info!("Challenge {} has view HTML, searching for files...", name);
+            let mut links = Vec::new();
+            let mut search_start = 0;
+            while let Some(start) = view_html[search_start..].find(r#"href="/files/"#) {
+                let full_start = search_start + start;
+                let rest = &view_html[full_start..];
+                if let Some(path) = rest.split('"').nth(1) {
+                    let url = format!("{}{}", base_url, path);
+                    debug!("Found file: {}", url);
+                    links.push(url);
+                }
+                search_start = full_start + 1;
+            }
+            info!("Found {} files for challenge {}", links.len(), name);
+            links
         };
 
         let embed = CreateEmbed::new()
@@ -504,6 +586,10 @@ pub async fn dump(
                 let _ = thread
                     .send_message(ctx, serenity::CreateMessage::new().embed(embed))
                     .await;
+                
+                if !file_links.is_empty() {
+                    download_and_upload_files(&ctx, ctx.http(), thread.id, file_links, &client).await;
+                }
             }
             Err(e) => {
                 let err_str = format!("{:?}", e);
