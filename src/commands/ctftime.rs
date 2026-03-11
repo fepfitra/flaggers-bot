@@ -434,20 +434,17 @@ pub async fn dump(
             .header("Content-Type", "application/json")
             .send()
             .await
+            && let Ok(text) = resp.text().await
+            && let Ok(detail) = serde_json::from_str::<CtfdDetailResponse>(&text)
+            && detail.success
         {
-            if let Ok(text) = resp.text().await {
-                if let Ok(detail) = serde_json::from_str::<CtfdDetailResponse>(&text) {
-                    if detail.success {
-                        let html = detail
-                            .data
-                            .get("description")
-                            .and_then(|v| v.as_str())
-                            .unwrap_or("");
+            let html = detail
+                .data
+                .get("description")
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
 
-                        description = convert(html, None).unwrap_or_else(|_| html.to_string());
-                    }
-                }
-            }
+            description = convert(html, None).unwrap_or_else(|_| html.to_string());
         }
 
         let name = challenge
@@ -527,30 +524,37 @@ pub async fn dump(
 pub async fn archive(ctx: Context<'_>) -> Result<(), Error> {
     let channel_id = ctx.channel_id();
     let guild_id = ctx.guild_id().ok_or("Not in a guild")?;
-    
+
     let channels = guild_id.channels(ctx).await?;
     let current_channel = channels.get(&channel_id).ok_or("Channel not found")?;
     let category_id = current_channel.parent_id.ok_or("Channel has no category")?;
-    
-    let categories: Vec<_> = channels.values()
+
+    let categories: Vec<_> = channels
+        .values()
         .filter(|ch| ch.kind == serenity::ChannelType::Category)
         .collect();
-    
-    let active_category = categories.iter().find(|c| c.name.to_lowercase() == "active-mabar-ctf");
-    let archive_category = categories.iter().find(|c| c.name.to_lowercase() == "archive-mabar-ctf");
-    
+
+    let active_category = categories
+        .iter()
+        .find(|c| c.name.to_lowercase() == "active-mabar-ctf");
+    let archive_category = categories
+        .iter()
+        .find(|c| c.name.to_lowercase() == "archive-mabar-ctf");
+
     if let Some(active_cat) = active_category {
         if category_id == active_cat.id {
             if let Some(archive_cat) = archive_category {
-                channel_id.edit(ctx, serenity::EditChannel::new()
-                    .category(archive_cat.id)
-                ).await?;
-                ctx.say(format!("Moved <#{}> to archive-mabar-ctf", channel_id)).await?;
+                channel_id
+                    .edit(ctx, serenity::EditChannel::new().category(archive_cat.id))
+                    .await?;
+                ctx.say(format!("Moved <#{}> to archive-mabar-ctf", channel_id))
+                    .await?;
             } else {
                 ctx.say("Archive category not found").await?;
             }
         } else {
-            ctx.say("This channel is not in active-mabar-ctf category").await?;
+            ctx.say("This channel is not in active-mabar-ctf category")
+                .await?;
         }
     } else {
         ctx.say("Active category not found").await?;
@@ -564,30 +568,37 @@ pub async fn archive(ctx: Context<'_>) -> Result<(), Error> {
 pub async fn active(ctx: Context<'_>) -> Result<(), Error> {
     let channel_id = ctx.channel_id();
     let guild_id = ctx.guild_id().ok_or("Not in a guild")?;
-    
+
     let channels = guild_id.channels(ctx).await?;
     let current_channel = channels.get(&channel_id).ok_or("Channel not found")?;
     let category_id = current_channel.parent_id.ok_or("Channel has no category")?;
-    
-    let categories: Vec<_> = channels.values()
+
+    let categories: Vec<_> = channels
+        .values()
         .filter(|ch| ch.kind == serenity::ChannelType::Category)
         .collect();
-    
-    let active_category = categories.iter().find(|c| c.name.to_lowercase() == "active-mabar-ctf");
-    let archive_category = categories.iter().find(|c| c.name.to_lowercase() == "archive-mabar-ctf");
-    
+
+    let active_category = categories
+        .iter()
+        .find(|c| c.name.to_lowercase() == "active-mabar-ctf");
+    let archive_category = categories
+        .iter()
+        .find(|c| c.name.to_lowercase() == "archive-mabar-ctf");
+
     if let Some(archive_cat) = archive_category {
         if category_id == archive_cat.id {
             if let Some(active_cat) = active_category {
-                channel_id.edit(ctx, serenity::EditChannel::new()
-                    .category(active_cat.id)
-                ).await?;
-                ctx.say(format!("Moved <#{}> to active-mabar-ctf", channel_id)).await?;
+                channel_id
+                    .edit(ctx, serenity::EditChannel::new().category(active_cat.id))
+                    .await?;
+                ctx.say(format!("Moved <#{}> to active-mabar-ctf", channel_id))
+                    .await?;
             } else {
                 ctx.say("Active category not found").await?;
             }
         } else {
-            ctx.say("This channel is not in archive-mabar-ctf category").await?;
+            ctx.say("This channel is not in archive-mabar-ctf category")
+                .await?;
         }
     } else {
         ctx.say("Archive category not found").await?;
@@ -612,7 +623,10 @@ mod tests {
 
     #[test]
     fn test_sanitize_channel_name_preserves_hyphens() {
-        assert_eq!(sanitize_channel_name("Web - SQL Injection"), "web---sql-injection");
+        assert_eq!(
+            sanitize_channel_name("Web - SQL Injection"),
+            "web---sql-injection"
+        );
     }
 
     #[test]
@@ -624,6 +638,9 @@ mod tests {
 
     #[test]
     fn test_sanitize_channel_name_alphanumeric_only() {
-        assert_eq!(sanitize_channel_name("PwnBufferOverflow"), "pwnbufferoverflow");
+        assert_eq!(
+            sanitize_channel_name("PwnBufferOverflow"),
+            "pwnbufferoverflow"
+        );
     }
 }

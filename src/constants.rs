@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub const ACTIVE_CATEGORY: &str = "active-mabar-ctf";
 pub const ARCHIVE_CATEGORY: &str = "archive-mabar-ctf";
 

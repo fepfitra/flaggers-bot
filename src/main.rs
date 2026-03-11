@@ -105,42 +105,42 @@ fn main() {
                     }
                     return;
                 }
-            cli::DaemonAction::Stop => {
-                if daemon::stop_daemon() {
-                    println!("Daemon stopped");
-                } else {
-                    eprintln!("Failed to stop daemon");
-                    std::process::exit(1);
+                cli::DaemonAction::Stop => {
+                    if daemon::stop_daemon() {
+                        println!("Daemon stopped");
+                    } else {
+                        eprintln!("Failed to stop daemon");
+                        std::process::exit(1);
+                    }
+                    return;
                 }
-                return;
-            }
-            cli::DaemonAction::Restart => {
-                if daemon::restart_daemon_systemd() {
-                    println!("Daemon restarted via systemd");
-                } else {
-                    eprintln!("Failed to restart daemon");
-                    std::process::exit(1);
+                cli::DaemonAction::Restart => {
+                    if daemon::restart_daemon_systemd() {
+                        println!("Daemon restarted via systemd");
+                    } else {
+                        eprintln!("Failed to restart daemon");
+                        std::process::exit(1);
+                    }
+                    return;
                 }
-                return;
-            }
-            cli::DaemonAction::Status => {
-                if daemon::daemon_status() {
-                    println!("Daemon is running");
-                } else {
-                    println!("Daemon is not running");
+                cli::DaemonAction::Status => {
+                    if daemon::daemon_status() {
+                        println!("Daemon is running");
+                    } else {
+                        println!("Daemon is not running");
+                    }
+                    return;
                 }
-                return;
-            }
-            cli::DaemonAction::Uninstall => match daemon::uninstall_systemd_service() {
-                Ok(_) => {
-                    println!("Daemon uninstalled successfully");
-                }
-                Err(e) => {
-                    eprintln!("Failed to uninstall: {}", e);
-                    std::process::exit(1);
-                }
+                cli::DaemonAction::Uninstall => match daemon::uninstall_systemd_service() {
+                    Ok(_) => {
+                        println!("Daemon uninstalled successfully");
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to uninstall: {}", e);
+                        std::process::exit(1);
+                    }
+                },
             },
-        },
         }
     }
 

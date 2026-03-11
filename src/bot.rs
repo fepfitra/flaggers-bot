@@ -39,7 +39,7 @@ async fn add_user_to_channel(
         deny: serenity::Permissions::empty(),
         kind: serenity::PermissionOverwriteType::Member(user_id),
     };
-    
+
     if let Err(e) = channel.create_permission(ctx, permission_overwrite).await {
         warn!("Failed to add permission for user {}: {}", user_id, e);
     }
@@ -93,13 +93,15 @@ async fn handle_create_channel(
                 user_id,
                 &component.user.name,
                 &format!("{} joined the CTF!", component.user.name),
-            ).await;
-            
+            )
+            .await;
+
             respond_to_interaction(
                 ctx,
                 component,
                 &format!("Added you to <#{}>!", channel.id.get()),
-            ).await;
+            )
+            .await;
         } else {
             let channels = guild_id.channels(ctx).await.ok();
             let category_id = channels
@@ -139,13 +141,15 @@ async fn handle_create_channel(
                         user_id,
                         &component.user.name,
                         &format!("{} created the channel!", component.user.name),
-                    ).await;
-                    
+                    )
+                    .await;
+
                     respond_to_interaction(
                         ctx,
                         component,
                         &format!("Created and added you to <#{}>!", ch.id.get()),
-                    ).await;
+                    )
+                    .await;
                 }
                 Err(e) => {
                     error!("Failed to create channel: {}", e);
@@ -153,7 +157,8 @@ async fn handle_create_channel(
                         ctx,
                         component,
                         &format!("Error creating channel: {}", e),
-                    ).await;
+                    )
+                    .await;
                 }
             }
         }
@@ -183,14 +188,16 @@ async fn handle_join_channel(
                 user_id,
                 &component.user.name,
                 &format!("{} joined the CTF!", component.user.name),
-            ).await;
+            )
+            .await;
         } else {
             warn!("Channel not found: {}", channel_name);
             respond_to_interaction(
                 ctx,
                 component,
                 &format!("Channel #{} not found. Create it first!", channel_name),
-            ).await;
+            )
+            .await;
         }
     }
 }
