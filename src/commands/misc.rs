@@ -56,7 +56,7 @@ pub async fn update(ctx: Context<'_>) -> Result<(), Error> {
             if msg.contains("Already at latest") {
                 ctx.say("Already at the latest version!").await?;
             } else {
-                ctx.say(format!("Update failed: {}", e)).await?;
+                ctx.say(format!("Update failed: {}\n\nThe old binary doesn't seem to exist, it might have been moved.", e)).await?;
             }
         }
     }
