@@ -1,4 +1,5 @@
 use chrono::{DateTime, Datelike, TimeZone, Utc};
+use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::CreateEmbed;
 use reqwest::Client;
 use serde::Deserialize;
@@ -8,6 +9,15 @@ pub type Context<'a> = poise::Context<'a, (), Error>;
 
 pub const REPO_URL: &str =
     "[GitHub](https://github.com/fepfitra/flaggers-bot) - Contributions are welcome!";
+
+pub fn sanitize_channel_name(name: &str) -> String {
+    name.to_lowercase()
+        .replace(' ', "-")
+        .chars()
+        .filter(|c| c.is_alphanumeric() || *c == '-')
+        .take(100)
+        .collect()
+}
 
 #[derive(Debug, Deserialize)]
 struct CtfEvent {
@@ -70,17 +80,28 @@ fn get_default_logo() -> &'static str {
     "https://pbs.twimg.com/profile_images/2189766987/ctftime-logo-avatar_400x400.png"
 }
 
+fn create_ctf_button(ctf_name: &str) -> Vec<serenity::CreateActionRow> {
+    let button = serenity::CreateButton::new(format!("create_ctf_channel:{}", ctf_name))
+        .label("Create CTF Channel")
+        .style(serenity::ButtonStyle::Primary);
+    
+    vec![serenity::CreateActionRow::Buttons(vec![button])]
+}
+
+fn create_http_client() -> Client {
+    Client::builder()
+        .user_agent("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0")
+        .build()
+        .unwrap()
+}
+
 /// Shows currently running CTFs
 #[poise::command(slash_command, prefix_command)]
 pub async fn ctftime_current(ctx: Context<'_>) -> Result<(), Error> {
-    let client = Client::new();
+    let client = create_http_client();
     let response = client
         .get("https://ctftime.org/api/v1/events/")
         .query(&[("limit", "5")])
-        .header(
-            "User-Agent",
-            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0",
-        )
         .send()
         .await?;
 
@@ -117,7 +138,13 @@ pub async fn ctftime_current(ctx: Context<'_>) -> Result<(), Error> {
                 .field("Timeframe", format_timeframe(start, end), true)
                 .color(0xf23a55);
 
-            ctx.send(poise::CreateReply::default().embed(embed)).await?;
+            let ctf_name = sanitize_channel_name(&event.title);
+            
+            ctx.send(
+                poise::CreateReply::default()
+                    .embed(embed)
+                    .components(create_ctf_button(&ctf_name))
+            ).await?;
         }
     }
 
@@ -132,14 +159,10 @@ pub async fn ctftime_current(ctx: Context<'_>) -> Result<(), Error> {
 #[poise::command(slash_command, prefix_command)]
 pub async fn ctftime_upcoming(ctx: Context<'_>, amount: Option<i32>) -> Result<(), Error> {
     let amount = amount.unwrap_or(3).min(10);
-    let client = Client::new();
+    let client = create_http_client();
     let response = client
         .get("https://ctftime.org/api/v1/events/")
         .query(&[("limit", amount.to_string())])
-        .header(
-            "User-Agent",
-            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0",
-        )
         .send()
         .await?;
 
@@ -176,7 +199,13 @@ pub async fn ctftime_upcoming(ctx: Context<'_>, amount: Option<i32>) -> Result<(
             .field("Timeframe", format!("{} -> {}", start_str, end_str), true)
             .color(0xf23a55);
 
-        ctx.send(poise::CreateReply::default().embed(embed)).await?;
+        let ctf_name = sanitize_channel_name(&event.title);
+        
+        ctx.send(
+            poise::CreateReply::default()
+                .embed(embed)
+                .components(create_ctf_button(&ctf_name))
+        ).await?;
     }
 
     Ok(())
@@ -187,13 +216,9 @@ pub async fn ctftime_upcoming(ctx: Context<'_>, amount: Option<i32>) -> Result<(
 pub async fn ctftime_top(ctx: Context<'_>, year: Option<i32>) -> Result<(), Error> {
     let current_year = Utc::now().date_naive().year();
     let year = year.unwrap_or(current_year);
-    let client = Client::new();
+    let client = create_http_client();
     let response = client
         .get(format!("https://ctftime.org/api/v1/top/{}/", year))
-        .header(
-            "User-Agent",
-            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0",
-        )
         .send()
         .await?;
 
@@ -233,14 +258,10 @@ pub async fn ctftime_top(ctx: Context<'_>, year: Option<i32>) -> Result<(), Erro
 /// Shows time left for running CTFs
 #[poise::command(slash_command, prefix_command)]
 pub async fn ctftime_timeleft(ctx: Context<'_>) -> Result<(), Error> {
-    let client = Client::new();
+    let client = create_http_client();
     let response = client
         .get("https://ctftime.org/api/v1/events/")
         .query(&[("limit", "5")])
-        .header(
-            "User-Agent",
-            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0",
-        )
         .send()
         .await?;
 
