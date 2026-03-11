@@ -13,7 +13,7 @@ A Discord bot for CTF (Capture The Flag) events.
 ## Commands
 
 ```
-/version          - Show bot version, RAM usage, and binary size
+/about            - Show bot version, RAM usage, and binary size
 /update           - Update bot to latest version
 /ctftime_current  - Show currently running CTFs
 /ctftime_upcoming - Show upcoming CTFs

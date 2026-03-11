@@ -10,7 +10,7 @@ fn get_binary_size() -> u64 {
 }
 
 /// Show bot version, RAM usage, and binary size
-#[poise::command(slash_command, prefix_command)]
+#[poise::command(slash_command, prefix_command, rename = "about")]
 pub async fn version(ctx: Context<'_>) -> Result<(), Error> {
     let mut sys = System::new_all();
     let pid = Pid::from_u32(std::process::id());
