@@ -120,6 +120,7 @@ fn main() {
                     eprintln!("Failed to restart daemon");
                     std::process::exit(1);
                 }
+                return;
             }
             cli::DaemonAction::Status => {
                 if daemon::daemon_status() {
@@ -127,6 +128,7 @@ fn main() {
                 } else {
                     println!("Daemon is not running");
                 }
+                return;
             }
             cli::DaemonAction::Uninstall => match daemon::uninstall_systemd_service() {
                 Ok(_) => {

@@ -52,8 +52,8 @@ This will download the binary, set permissions, and install the systemd service.
 ## Usage
 
 ```bash
-# Run the bot (requires systemd service installed)
-flaggers_bot
+# Run the bot directly
+flaggers_bot run
 
 # Install systemd service (run once)
 flaggers_bot install-systemd
