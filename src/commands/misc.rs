@@ -29,11 +29,6 @@ pub async fn version(ctx: Context<'_>) -> Result<(), Error> {
         .field("Version", env!("CARGO_PKG_VERSION"), true)
         .field("RAM", format!("{} MB", ram_mb), true)
         .field("Binary", format!("{} KB", binary_size_kb), true)
-        .field(
-            "Contribute",
-            "Contributions & feature requests are welcome!",
-            false,
-        )
         .field("Repo", REPO_URL, false)
         .color(0x5865F2);
 
