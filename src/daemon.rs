@@ -74,8 +74,13 @@ WantedBy=default.target
     let service_path = service_dir.join("flaggers_bot.service");
     std::fs::write(&service_path, service_content)?;
 
-    println!("Installed systemd service to {}", service_path.display());
-    println!("Run: systemctl --user daemon-reload && systemctl --user enable --now flaggers_bot");
+    let _ = Command::new("systemctl")
+        .args(["--user", "daemon-reload"])
+        .output();
+
+    let _ = Command::new("systemctl")
+        .args(["--user", "enable", "--now", "flaggers_bot"])
+        .output();
 
     Ok(())
 }
@@ -90,10 +95,11 @@ pub fn uninstall_systemd_service() -> Result<(), Box<dyn std::error::Error>> {
     let service_path = home.join(".config/systemd/user/flaggers_bot.service");
     if service_path.exists() {
         std::fs::remove_file(&service_path)?;
-        println!("Removed systemd service");
     }
 
-    println!("Run: systemctl --user daemon-reload");
+    let _ = Command::new("systemctl")
+        .args(["--user", "daemon-reload"])
+        .output();
 
     Ok(())
 }
@@ -105,7 +111,6 @@ pub fn uninstall_bot() -> Result<(), Box<dyn std::error::Error>> {
     let bin_path = home.join(".local/bin/flaggers_bot");
     if bin_path.exists() {
         std::fs::remove_file(&bin_path)?;
-        println!("Removed binary");
     }
 
     Ok(())
