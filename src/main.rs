@@ -89,7 +89,9 @@ fn main() {
                 }
             },
             Commands::Run => {
-                tracing_subscriber::fmt::init();
+                tracing_subscriber::fmt()
+                    .with_max_level(tracing::Level::INFO)
+                    .init();
                 bot::run_bot_blocking();
                 return;
             }

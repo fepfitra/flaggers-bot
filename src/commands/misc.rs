@@ -13,6 +13,7 @@ fn get_binary_size() -> u64 {
 /// Show bot version, RAM usage, and binary size
 #[poise::command(slash_command, prefix_command, rename = "about")]
 pub async fn version(ctx: Context<'_>) -> Result<(), Error> {
+    tracing::info!("version/about command invoked");
     let mut sys = System::new_all();
     let pid = Pid::from_u32(std::process::id());
     sys.refresh_processes(sysinfo::ProcessesToUpdate::Some(&[pid]), true);
@@ -40,6 +41,7 @@ pub async fn version(ctx: Context<'_>) -> Result<(), Error> {
 /// Update bot to latest version
 #[poise::command(slash_command, prefix_command)]
 pub async fn update(ctx: Context<'_>) -> Result<(), Error> {
+    tracing::info!("update command invoked");
     let result = tokio::task::spawn_blocking(update_binary).await?;
 
     match result {

@@ -158,6 +158,7 @@ async fn download_and_upload_files(
 /// Shows currently running CTFs
 #[poise::command(slash_command, prefix_command)]
 pub async fn ctftime_current(ctx: Context<'_>) -> Result<(), Error> {
+    tracing::info!("ctftime_current command invoked");
     let client = create_http_client();
     let response = client
         .get("https://ctftime.org/api/v1/events/")
@@ -220,6 +221,7 @@ pub async fn ctftime_current(ctx: Context<'_>) -> Result<(), Error> {
 #[poise::command(slash_command, prefix_command)]
 pub async fn ctftime_upcoming(ctx: Context<'_>, amount: Option<i32>) -> Result<(), Error> {
     let amount = amount.unwrap_or(3).min(10);
+    tracing::info!("ctftime_upcoming command invoked, amount: {}", amount);
     let client = create_http_client();
     let response = client
         .get("https://ctftime.org/api/v1/events/")
@@ -278,6 +280,7 @@ pub async fn ctftime_upcoming(ctx: Context<'_>, amount: Option<i32>) -> Result<(
 pub async fn ctftime_top(ctx: Context<'_>, year: Option<i32>) -> Result<(), Error> {
     let current_year = Utc::now().date_naive().year();
     let year = year.unwrap_or(current_year);
+    tracing::info!("ctftime_top command invoked, year: {}", year);
     let client = create_http_client();
     let response = client
         .get(format!("https://ctftime.org/api/v1/top/{}/", year))
@@ -320,6 +323,7 @@ pub async fn ctftime_top(ctx: Context<'_>, year: Option<i32>) -> Result<(), Erro
 /// Shows time left for running CTFs
 #[poise::command(slash_command, prefix_command)]
 pub async fn ctftime_timeleft(ctx: Context<'_>) -> Result<(), Error> {
+    tracing::info!("ctftime_timeleft command invoked");
     let client = create_http_client();
     let response = client
         .get("https://ctftime.org/api/v1/events/")
@@ -389,7 +393,8 @@ pub async fn dump(
     #[description = "Access token"] token: String,
 ) -> Result<(), Error> {
     ctx.defer().await?;
-
+    tracing::info!("dump command invoked, site: {}", site);
+    
     let channel_id = ctx.channel_id();
 
     if let Some(guild_id) = ctx.guild_id() {
@@ -607,6 +612,7 @@ pub async fn dump(
 /// Archive a channel (move from active to archive)
 #[poise::command(slash_command, prefix_command, guild_only)]
 pub async fn archive(ctx: Context<'_>) -> Result<(), Error> {
+    tracing::info!("archive command invoked");
     let channel_id = ctx.channel_id();
     let guild_id = ctx.guild_id().ok_or("Not in a guild")?;
 
@@ -651,6 +657,7 @@ pub async fn archive(ctx: Context<'_>) -> Result<(), Error> {
 /// Activate a channel (move from archive to active)
 #[poise::command(slash_command, prefix_command, guild_only)]
 pub async fn active(ctx: Context<'_>) -> Result<(), Error> {
+    tracing::info!("active command invoked");
     let channel_id = ctx.channel_id();
     let guild_id = ctx.guild_id().ok_or("Not in a guild")?;
 
