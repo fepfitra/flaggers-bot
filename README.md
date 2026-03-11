@@ -19,8 +19,23 @@ A Discord bot for CTF (Capture The Flag) events.
 /ctftime_upcoming - Show upcoming CTFs
 /ctftime_top      - Show CTFtime leaderboard
 /ctftime_timeleft - Show time left for running CTFs
-/dump             - Dump challenges from a CTFd site
+/dump             - Dump challenges from a CTFd site (creates threads)
 ```
+
+### /dump Command
+
+Dumps challenges from a CTFd instance and creates a thread for each challenge.
+
+```
+/dump <site> <token>
+```
+
+Example: `/dump https://ctf.example.com your_access_token`
+
+- Creates a thread per challenge (format: "category/challenge_name")
+- Sends challenge details (category, points, description) to each thread
+- Only works in channels under "active-mabar-ctf" or "archive-mabar-ctf" categories
+- Requires **Administrator** permission or `Create Public Threads` + `Send Messages` permissions
 
 ### CTF Channel Buttons
 
@@ -42,8 +57,7 @@ Each CTF embed has **Create** and **Join** buttons:
 7. Under **Scopes**, select:
    - `bot`
 8. Under **Bot Permissions**, select:
-   - `Send Messages`
-   - `Use Slash Commands`
+   - `Administrator` (required for creating channels/threads in categories)
 9. Copy the generated URL and invite the bot to your server
 
 **Note:** Anyone inviting this bot to their server needs `Manage Server` permission in that server.
