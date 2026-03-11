@@ -1,12 +1,13 @@
 use chrono::{DateTime, Datelike, TimeZone, Utc};
+use poise::serenity_prelude::CreateEmbed;
 use reqwest::Client;
 use serde::Deserialize;
-use serenity::builder::CreateEmbed;
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub type Context<'a> = poise::Context<'a, (), Error>;
 
-pub const REPO_URL: &str = "https://github.com/fepfitra/flaggers-bot";
+pub const REPO_URL: &str =
+    "[GitHub](https://github.com/fepfitra/flaggers-bot) - Contributions are welcome!";
 
 #[derive(Debug, Deserialize)]
 struct CtfEvent {
