@@ -43,7 +43,7 @@ esac
 NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 
 echo "Running clippy..."
-cargo dotenv clippy
+cargo clippy -- -D warnings
 
 echo "Current version: $CURRENT_VERSION"
 echo "New version: $NEW_VERSION"
