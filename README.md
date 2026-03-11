@@ -21,6 +21,14 @@ A Discord bot for CTF (Capture The Flag) events.
 /ctftime_timeleft - Show time left for running CTFs
 ```
 
+### CTF Channel Buttons
+
+Each CTF embed has **Create** and **Join** buttons:
+- **Create**: Creates a text channel in the "active-mabar-ctf" category and adds you to it
+- **Join**: Adds you to an existing channel for that CTF
+
+> **Note:** The Join button functionality needs testing. Please report any issues.
+
 ## Discord Bot Setup
 
 1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
