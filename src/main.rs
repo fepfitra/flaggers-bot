@@ -4,13 +4,8 @@ mod commands;
 mod config;
 mod daemon;
 
-use bot::run_bot_blocking;
 use clap::Parser;
 use cli::{Args, Commands};
-use daemon::{
-    daemon_status, install_systemd_service, restart_daemon_systemd, start_daemon_systemd,
-    stop_daemon, uninstall_bot,
-};
 
 pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let current_exe = std::env::current_exe()?;
@@ -86,7 +81,7 @@ fn main() {
     if let Some(command) = args.command {
         match command {
             Commands::InstallSystemd => {
-                match install_systemd_service() {
+                match daemon::install_systemd_service() {
                     Ok(_) => {}
                     Err(e) => {
                         eprintln!("Failed to install systemd service: {}", e);
@@ -97,7 +92,7 @@ fn main() {
             }
             Commands::Daemon(daemon_args) => match daemon_args.action {
                 cli::DaemonAction::Start => {
-                    if start_daemon_systemd() {
+                    if daemon::start_daemon_systemd() {
                         println!("Daemon started via systemd");
                     } else {
                         eprintln!(
@@ -108,7 +103,7 @@ fn main() {
                     return;
                 }
                 cli::DaemonAction::Stop => {
-                    if stop_daemon() {
+                    if daemon::stop_daemon() {
                         println!("Daemon stopped");
                     } else {
                         eprintln!("Failed to stop daemon");
@@ -117,7 +112,7 @@ fn main() {
                     return;
                 }
                 cli::DaemonAction::Restart => {
-                    if restart_daemon_systemd() {
+                    if daemon::restart_daemon_systemd() {
                         println!("Daemon restarted via systemd");
                     } else {
                         eprintln!("Failed to restart daemon");
@@ -126,7 +121,7 @@ fn main() {
                     return;
                 }
                 cli::DaemonAction::Status => {
-                    if daemon_status() {
+                    if daemon::daemon_status() {
                         println!("Daemon is running");
                     } else {
                         println!("Daemon is not running");
@@ -153,7 +148,7 @@ fn main() {
         match update_binary() {
             Ok(version) => {
                 println!("Updated to v{}", version);
-                if restart_daemon_systemd() {
+                if daemon::restart_daemon_systemd() {
                     println!("Daemon restarted");
                 } else {
                     println!("Note: Restart daemon manually if systemd service is installed");
@@ -168,7 +163,7 @@ fn main() {
     }
 
     if args.uninstall {
-        match uninstall_bot() {
+        match daemon::uninstall_bot() {
             Ok(_) => {
                 println!("Bot uninstalled successfully");
             }
@@ -181,5 +176,5 @@ fn main() {
     }
 
     tracing_subscriber::fmt::init();
-    run_bot_blocking();
+    bot::run_bot_blocking();
 }
