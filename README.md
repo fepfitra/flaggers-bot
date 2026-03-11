@@ -19,6 +19,7 @@ A Discord bot for CTF (Capture The Flag) events.
 /ctftime_upcoming - Show upcoming CTFs
 /ctftime_top      - Show CTFtime leaderboard
 /ctftime_timeleft - Show time left for running CTFs
+/dump             - Dump challenges from a CTFd site
 ```
 
 ### CTF Channel Buttons

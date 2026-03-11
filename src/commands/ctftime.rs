@@ -1,4 +1,5 @@
 use chrono::{DateTime, Datelike, TimeZone, Utc};
+use html_to_markdown_rs::convert;
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::CreateEmbed;
 use reqwest::Client;
@@ -300,6 +301,223 @@ pub async fn ctftime_timeleft(ctx: Context<'_>) -> Result<(), Error> {
     if !found {
         ctx.say("No CTFs are running! Use `>ctftime upcoming` or `>ctftime countdown` to see upcoming CTFs").await?;
     }
+
+    Ok(())
+}
+
+#[derive(Debug, Deserialize)]
+struct CtfdResponse {
+    success: bool,
+    data: Vec<serde_json::Value>,
+    meta: Option<CtfdMeta>,
+}
+
+#[derive(Debug, Deserialize)]
+struct CtfdDetailResponse {
+    success: bool,
+    data: serde_json::Value,
+}
+
+#[derive(Debug, Deserialize)]
+struct CtfdMeta {
+    pagination: CtfdPagination,
+}
+
+#[derive(Debug, Deserialize)]
+struct CtfdPagination {
+    pages: i32,
+}
+
+/// Dump challenges from a CTFd instance
+#[poise::command(slash_command, prefix_command, guild_only)]
+pub async fn dump(
+    ctx: Context<'_>,
+    #[description = "CTF site URL (e.g., https://ctf.example.com)"] site: String,
+    #[description = "Access token"] token: String,
+) -> Result<(), Error> {
+    ctx.defer().await?;
+
+    let channel_id = ctx.channel_id();
+
+    if let Some(guild_id) = ctx.guild_id() {
+        let channels = guild_id.channels(ctx).await.ok();
+        if let Some(channels) = channels {
+            let channel = channels.get(&channel_id);
+            let category_id = channel.and_then(|ch| ch.parent_id);
+
+            let allowed = channels.values().any(|ch| {
+                ch.kind == serenity::ChannelType::Category
+                    && (ch.name.to_lowercase() == "active-mabar-ctf"
+                        || ch.name.to_lowercase() == "archive-mabar-ctf")
+                    && Some(ch.id) == category_id
+            });
+
+            if !allowed {
+                ctx.say("This command can only be used in active-mabar-ctf or archive-mabar-ctf channels.").await?;
+                return Ok(());
+            }
+        }
+    }
+
+    let client = create_http_client();
+    let base_url = site.trim_end_matches('/').to_string();
+
+    let mut all_challenges = Vec::new();
+    let mut page = 1;
+
+    loop {
+        let api_url = format!("{}/api/v1/challenges?page={}", base_url, page);
+
+        let response = client
+            .get(&api_url)
+            .header("Authorization", format!("Token {}", token))
+            .header("Content-Type", "application/json")
+            .send()
+            .await
+            .map_err(|e| format!("Request error: {}", e))?;
+
+        if !response.status().is_success() {
+            ctx.say(format!("Error: {}", response.status())).await?;
+            return Ok(());
+        }
+
+        let text = response
+            .text()
+            .await
+            .map_err(|e| format!("Read error: {}", e))?;
+
+        if text.is_empty() {
+            ctx.say("Empty response").await?;
+            return Ok(());
+        }
+
+        let data: CtfdResponse = serde_json::from_str(&text).map_err(|e| {
+            format!(
+                "JSON error: {} | Response: {}",
+                e,
+                &text[..text.len().min(200)]
+            )
+        })?;
+
+        if !data.success {
+            ctx.say("API returned error").await?;
+            return Ok(());
+        }
+
+        all_challenges.extend(data.data);
+
+        if let Some(meta) = data.meta {
+            if page >= meta.pagination.pages {
+                break;
+            }
+        } else {
+            break;
+        }
+
+        page += 1;
+    }
+
+    if all_challenges.is_empty() {
+        ctx.say("No challenges found").await?;
+        return Ok(());
+    }
+
+    for challenge in &all_challenges {
+        let id = challenge.get("id").and_then(|v| v.as_i64()).unwrap_or(0);
+
+        let detail_url = format!("{}/api/v1/challenges/{}", base_url, id);
+        let mut description = String::new();
+
+        if let Ok(resp) = client
+            .get(&detail_url)
+            .header("Authorization", format!("Token {}", token))
+            .header("Content-Type", "application/json")
+            .send()
+            .await
+        {
+            if let Ok(text) = resp.text().await {
+                if let Ok(detail) = serde_json::from_str::<CtfdDetailResponse>(&text) {
+                    if detail.success {
+                        let html = detail
+                            .data
+                            .get("description")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("");
+
+                        description = convert(html, None).unwrap_or_else(|_| html.to_string());
+                    }
+                }
+            }
+        }
+
+        let name = challenge
+            .get("name")
+            .and_then(|v| v.as_str())
+            .unwrap_or("Unknown");
+        let category = challenge
+            .get("category")
+            .and_then(|v| v.as_str())
+            .unwrap_or("N/A");
+        let value = challenge.get("value").and_then(|v| v.as_i64()).unwrap_or(0);
+
+        let tags: Vec<String> = challenge
+            .get("tags")
+            .and_then(|v| v.as_array())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|t| t.as_str().map(String::from))
+                    .collect()
+            })
+            .unwrap_or_default();
+
+        let tags_str = if tags.is_empty() {
+            String::new()
+        } else {
+            format!("\n**Tags:** {}", tags.join(", "))
+        };
+
+        let embed = CreateEmbed::new()
+            .title(name)
+            .description(format!(
+                "**Category:** {}\n**Points:** {}{}",
+                category, value, tags_str
+            ))
+            .field("Description", &description, false)
+            .color(0xf23a55);
+
+        let thread_name = format!("{}/{}", category, name);
+
+        let channel_id = ctx.channel_id();
+
+        tracing::info!(
+            "Creating thread '{}' in channel {}",
+            thread_name,
+            channel_id
+        );
+
+        let thread = channel_id
+            .create_thread(
+                ctx.http(),
+                serenity::CreateThread::new(&thread_name).kind(serenity::ChannelType::PublicThread),
+            )
+            .await;
+
+        match thread {
+            Ok(thread) => {
+                tracing::info!("Thread created: {}", thread.id);
+                let _ = thread
+                    .send_message(ctx, serenity::CreateMessage::new().embed(embed))
+                    .await;
+            }
+            Err(e) => {
+                let err_str = format!("{:?}", e);
+                tracing::error!("Thread error '{}': {}", thread_name, err_str);
+            }
+        }
+    }
+
+    ctx.say(format!("Processed {} challenges", all_challenges.len()))
+        .await?;
 
     Ok(())
 }
