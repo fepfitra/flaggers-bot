@@ -63,9 +63,13 @@ flaggers_bot daemon start
 flaggers_bot daemon stop
 flaggers_bot daemon restart
 flaggers_bot daemon status
+flaggers_bot daemon uninstall
 
 # Update to latest version
 flaggers_bot --update
+
+# Uninstall bot (removes systemd service and binary)
+flaggers_bot --uninstall
 
 # Show version
 flaggers_bot --version
