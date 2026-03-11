@@ -79,15 +79,13 @@ fn main() {
     let args = Args::parse();
 
     match args.command {
-        Commands::InstallSystemd => {
-            match daemon::install_systemd_service() {
-                Ok(_) => {}
-                Err(e) => {
-                    eprintln!("Failed to install systemd service: {}", e);
-                    std::process::exit(1);
-                }
+        Commands::InstallSystemd => match daemon::install_systemd_service() {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!("Failed to install systemd service: {}", e);
+                std::process::exit(1);
             }
-        }
+        },
         Commands::Daemon(daemon_args) => match daemon_args.action {
             cli::DaemonAction::Start => {
                 if daemon::start_daemon_systemd() {
@@ -122,17 +120,15 @@ fn main() {
                     println!("Daemon is not running");
                 }
             }
-            cli::DaemonAction::Uninstall => {
-                match daemon::uninstall_systemd_service() {
-                    Ok(_) => {
-                        println!("Daemon uninstalled successfully");
-                    }
-                    Err(e) => {
-                        eprintln!("Failed to uninstall: {}", e);
-                        std::process::exit(1);
-                    }
+            cli::DaemonAction::Uninstall => match daemon::uninstall_systemd_service() {
+                Ok(_) => {
+                    println!("Daemon uninstalled successfully");
                 }
-            }
+                Err(e) => {
+                    eprintln!("Failed to uninstall: {}", e);
+                    std::process::exit(1);
+                }
+            },
         },
     }
 
