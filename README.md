@@ -88,6 +88,7 @@ flaggers_bot daemon start
 flaggers_bot daemon stop
 flaggers_bot daemon restart
 flaggers_bot daemon status
+flaggers_bot daemon logs
 flaggers_bot daemon uninstall
 
 # Update to latest version
