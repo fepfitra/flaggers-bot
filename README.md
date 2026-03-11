@@ -138,6 +138,9 @@ cargo run -- --version
 # Run in release mode
 cargo run --release -- --version
 
+# Build, install, and restart (dev workflow)
+./dev.sh
+
 # Run clippy
 cargo clippy
 
