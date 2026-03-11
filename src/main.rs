@@ -2,6 +2,7 @@ mod bot;
 mod cli;
 mod commands;
 mod config;
+mod constants;
 mod daemon;
 
 use clap::Parser;

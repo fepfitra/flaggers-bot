@@ -595,3 +595,35 @@ pub async fn active(ctx: Context<'_>) -> Result<(), Error> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::sanitize_channel_name;
+
+    #[test]
+    fn test_sanitize_channel_name_basic() {
+        assert_eq!(sanitize_channel_name("Hello World"), "hello-world");
+    }
+
+    #[test]
+    fn test_sanitize_channel_name_special_chars() {
+        assert_eq!(sanitize_channel_name("Test@#$%"), "test");
+    }
+
+    #[test]
+    fn test_sanitize_channel_name_preserves_hyphens() {
+        assert_eq!(sanitize_channel_name("Web - SQL Injection"), "web---sql-injection");
+    }
+
+    #[test]
+    fn test_sanitize_channel_name_truncates_long_names() {
+        let long_name = "a".repeat(150);
+        let result = sanitize_channel_name(&long_name);
+        assert!(result.len() <= 100);
+    }
+
+    #[test]
+    fn test_sanitize_channel_name_alphanumeric_only() {
+        assert_eq!(sanitize_channel_name("PwnBufferOverflow"), "pwnbufferoverflow");
+    }
+}
