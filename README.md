@@ -107,6 +107,8 @@ docker run -d \
   ghcr.io/fepfitra/flaggers-bot:latest
 ```
 
+> **Note:** The `/update` command and `--update` flag are not available in Docker. To update, run: `docker-compose pull` or `docker pull ghcr.io/fepfitra/flaggers-bot:latest`
+
 ### Quick Install
 
 ```bash
@@ -132,7 +134,7 @@ flaggers_bot daemon status
 flaggers_bot daemon logs
 flaggers_bot daemon uninstall
 
-# Update to latest version
+# Update to latest version (Linux/systemd only, not available in Docker)
 flaggers_bot --update
 
 # Uninstall bot (removes systemd service and binary)
