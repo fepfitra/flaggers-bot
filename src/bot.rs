@@ -43,6 +43,9 @@ pub async fn run_bot() {
         })
         .setup(|ctx, _ready, framework| {
             Box::pin(async move {
+                if infrastructure::updater::check_and_clear_updated_flag() {
+                    info!("Bot updated and restarted successfully");
+                }
                 info!("Bot ready");
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 Ok(http_service)

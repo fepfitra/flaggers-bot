@@ -2,6 +2,9 @@ pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync
     let current_exe = std::env::current_exe()?;
     let temp_exe = current_exe.with_file_name("flaggers_bot_new");
 
+    let flag_file = current_exe.with_file_name("flaggers_bot.updated");
+    std::fs::write(&flag_file, "updated")?;
+
     let client = reqwest::blocking::Client::builder()
         .user_agent("flaggers-bot")
         .build()?;
@@ -64,4 +67,18 @@ pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync
     std::fs::rename(&temp_exe, &current_exe)?;
 
     Ok(tag_name.to_string())
+}
+
+pub fn check_and_clear_updated_flag() -> bool {
+    let current_exe = match std::env::current_exe() {
+        Ok(p) => p,
+        Err(_) => return false,
+    };
+    let flag_file = current_exe.with_file_name("flaggers_bot.updated");
+
+    if flag_file.exists() {
+        let _ = std::fs::remove_file(flag_file);
+        return true;
+    }
+    false
 }
