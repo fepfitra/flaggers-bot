@@ -68,6 +68,25 @@ Each CTF embed has **Create** and **Join** buttons:
 
 ## Installation
 
+### Docker (Recommended)
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/fepfitra/flaggers-bot:latest
+
+# Create config directory
+mkdir -p ~/.config/flaggers_bot
+
+# Create config file
+echo '{"discord_token": "YOUR_TOKEN"}' > ~/.config/flaggers_bot/config.json
+
+# Run the bot
+docker run -d \
+  --name flaggers_bot \
+  -v ~/.config/flaggers_bot:/root/.config/flaggers_bot \
+  ghcr.io/fepfitra/flaggers-bot:latest
+```
+
 ### Quick Install
 
 ```bash
