@@ -11,18 +11,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            binary: flaggers_bot
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            binary: flaggers_bot
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -64,8 +53,8 @@ jobs:
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: flaggers_bot-${{ matrix.os }}-${{ steps.get_tag.outputs.TAG }}
-          path: target/release/${{ matrix.binary }}
+          name: flaggers_bot-linux-${{ steps.get_tag.outputs.TAG }}
+          path: target/release/flaggers_bot
 
   release:
     runs-on: ubuntu-latest
@@ -82,23 +71,14 @@ jobs:
         id: get_tag
         run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Download ubuntu artifact
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: flaggers_bot-ubuntu-latest-${{ steps.get_tag.outputs.TAG }}
-          path: ubuntu
+          name: flaggers_bot-linux-${{ steps.get_tag.outputs.TAG }}
+          path: .
 
-      - name: Download macos artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: flaggers_bot-macos-latest-${{ steps.get_tag.outputs.TAG }}
-          path: macos
-
-      - name: Rename linux binary
-        run: mv ubuntu/flaggers_bot flaggers_bot-linux-x86_64
-
-      - name: Rename macos binary
-        run: mv macos/flaggers_bot flaggers_bot-macos-x86_64
+      - name: Rename binary
+        run: mv flaggers_bot flaggers_bot-linux-x86_64
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -106,6 +86,5 @@ jobs:
           tag_name: ${{ steps.get_tag.outputs.TAG }}
           files: |
             flaggers_bot-linux-x86_64
-            flaggers_bot-macos-x86_64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

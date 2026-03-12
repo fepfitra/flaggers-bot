@@ -1,6 +1,12 @@
 use std::process::Command;
 
 pub fn stop_daemon() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        eprintln!("macOS is not supported yet. Contributions are welcome!");
+        return false;
+    }
+
     let output = Command::new("systemctl")
         .args(["--user", "stop", "flaggers_bot"])
         .output();
@@ -12,6 +18,12 @@ pub fn stop_daemon() -> bool {
 }
 
 pub fn daemon_status() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        eprintln!("macOS is not supported yet. Contributions are welcome!");
+        return false;
+    }
+
     let output = Command::new("systemctl")
         .args(["--user", "is-active", "flaggers_bot"])
         .output();
@@ -23,6 +35,12 @@ pub fn daemon_status() -> bool {
 }
 
 pub fn start_daemon_systemd() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        eprintln!("macOS is not supported yet. Contributions are welcome!");
+        return false;
+    }
+
     let output = Command::new("systemctl")
         .args(["--user", "start", "flaggers_bot"])
         .output();
@@ -34,6 +52,12 @@ pub fn start_daemon_systemd() -> bool {
 }
 
 pub fn restart_daemon_systemd() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        eprintln!("macOS is not supported yet. Contributions are welcome!");
+        return false;
+    }
+
     let output = Command::new("systemctl")
         .args(["--user", "restart", "flaggers_bot"])
         .output();
@@ -45,6 +69,11 @@ pub fn restart_daemon_systemd() -> bool {
 }
 
 pub fn install_systemd_service() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(target_os = "macos")]
+    {
+        return Err("macOS is not supported yet. Contributions are welcome!".into());
+    }
+
     let home = dirs::home_dir().ok_or("Cannot find home directory")?;
     let bin_path = std::env::current_exe()
         .map(|p| p.to_path_buf())
@@ -88,6 +117,11 @@ WantedBy=default.target
 }
 
 pub fn uninstall_systemd_service() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(target_os = "macos")]
+    {
+        return Err("macOS is not supported yet. Contributions are welcome!".into());
+    }
+
     let home = dirs::home_dir().ok_or("Cannot find home directory")?;
 
     let _ = Command::new("systemctl")

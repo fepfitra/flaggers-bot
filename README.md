@@ -64,6 +64,8 @@ Each CTF embed has **Create** and **Join** buttons:
 
 **Note:** Anyone inviting this bot to their server needs `Manage Server` permission in that server.
 
+**Note:** Linux only (systemd). macOS support coming soon! Contributions are welcome.
+
 ## Installation
 
 ### Quick Install
