@@ -5,3 +5,5 @@ target/
 .env
 .env.*
 cargo.lock
+config.json
+config.json.example

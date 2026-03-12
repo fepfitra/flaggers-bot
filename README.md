@@ -73,9 +73,11 @@ Each CTF embed has **Create** and **Join** buttons:
 ```bash
 # Pull the latest config example
 curl -sL https://raw.githubusercontent.com/fepfitra/flaggers-bot/master/docker-compose.yml -o docker-compose.yml
+curl -sL https://raw.githubusercontent.com/fepfitra/flaggers-bot/master/config.json.example -o config.json.example
 
-# Create config file
-echo '{"discord_token": "YOUR_TOKEN"}' > config.json
+# Copy and edit config
+cp config.json.example config.json
+# Edit config.json with your Discord token
 
 # Start the bot
 docker-compose up -d
