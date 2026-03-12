@@ -41,9 +41,10 @@ pub async fn run_bot() {
             },
             ..Default::default()
         })
-        .setup(|_ctx, _ready, _framework| {
+        .setup(|ctx, _ready, framework| {
             Box::pin(async move {
                 info!("Bot ready");
+                poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 Ok(http_service)
             })
         })
