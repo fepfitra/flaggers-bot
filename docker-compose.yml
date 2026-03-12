@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  bot:
+    image: ghcr.io/fepfitra/flaggers-bot:latest
+    container_name: flaggers_bot
+    restart: unless-stopped
+    volumes:
+      - ./config.json:/root/.config/flaggers_bot/config.json:ro
+    environment:
+      - RUST_LOG=info

@@ -68,7 +68,21 @@ Each CTF embed has **Create** and **Join** buttons:
 
 ## Installation
 
-### Docker (Recommended)
+### Docker Compose (Recommended)
+
+```bash
+# Clone and create config
+git clone https://github.com/fepfitra/flaggers-bot.git
+cd flaggers-bot
+
+# Create config file
+echo '{"discord_token": "YOUR_TOKEN"}' > config.json
+
+# Start the bot
+docker-compose up -d
+```
+
+### Docker
 
 ```bash
 # Pull the latest image
