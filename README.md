@@ -80,6 +80,12 @@ echo '{"discord_token": "YOUR_TOKEN"}' > config.json
 
 # Start the bot
 docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the bot
+docker-compose down
 ```
 
 ### Docker
