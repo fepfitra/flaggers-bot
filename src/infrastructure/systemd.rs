@@ -91,6 +91,8 @@ WorkingDirectory={}
 ExecStart={} run
 Restart=always
 RestartSec=5
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=default.target
