@@ -45,6 +45,7 @@ pub async fn update(ctx: Context<'_>) -> Result<(), Error> {
         Ok(version) => {
             ctx.say(format!("Updated to v{}. Restarting...", version))
                 .await?;
+            tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
             if infrastructure::systemd::restart_daemon_systemd() {
                 std::process::exit(0);
             } else {
