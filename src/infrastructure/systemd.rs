@@ -91,6 +91,7 @@ WorkingDirectory={}
 ExecStart={} run
 Restart=always
 RestartSec=5
+KillMode=process
 StandardOutput=journal
 StandardError=journal
 
