@@ -1,9 +1,6 @@
 pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     if std::path::Path::new("/.dockerenv").exists() {
-        return Err(
-            "Update not supported in Docker. Pull the new image instead: docker-compose pull"
-                .into(),
-        );
+        return Err("Update not supported in Docker. Pull the new image instead.".into());
     }
 
     let current_exe = std::env::current_exe()?;
