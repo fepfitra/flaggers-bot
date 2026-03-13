@@ -2,7 +2,9 @@ use html_to_markdown_rs::convert;
 use poise::serenity_prelude as serenity;
 use reqwest::Client;
 use serde::Deserialize;
-use tracing::info;
+use tracing::{info, warn};
+
+const MAX_UPLOAD_SIZE: u64 = 25 * 1024 * 1024;
 
 #[derive(Debug, Deserialize)]
 pub struct CtfdChallenge {
@@ -213,6 +215,23 @@ pub async fn download_and_upload_files(
                                 .unwrap_or("file");
 
                             info!("Uploading file: {} ({} bytes)", filename, bytes.len());
+
+                            if bytes.len() as u64 > MAX_UPLOAD_SIZE {
+                                warn!("Skipped {}: file too large ({} bytes)", filename, bytes.len());
+                                if let Err(e) = thread_id
+                                    .send_message(
+                                        http,
+                                        serenity::CreateMessage::new().content(format!(
+                                            "Skipped {}: file too large (>25MB)",
+                                            filename
+                                        )),
+                                    )
+                                    .await
+                                {
+                                    tracing::error!("Failed to send skip notification: {}", e);
+                                }
+                                continue;
+                            }
 
                             let attachment =
                                 serenity::CreateAttachment::bytes(bytes, filename.to_string());
