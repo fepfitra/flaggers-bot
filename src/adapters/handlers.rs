@@ -97,7 +97,7 @@ pub async fn handle_create_channel(
             respond_to_interaction(
                 ctx,
                 component,
-                &format!("Created <#{}>", channel.id.get()),
+                &format!("Added you to <#{}>!", channel.id.get()),
             )
             .await;
         } else {
@@ -142,8 +142,12 @@ pub async fn handle_create_channel(
                     )
                     .await;
 
-                    respond_to_interaction(ctx, component, &format!("Created <#{}>", ch.id.get()))
-                        .await;
+                    respond_to_interaction(
+                        ctx,
+                        component,
+                        &format!("Created and added you to <#{}>!", ch.id.get()),
+                    )
+                    .await;
                 }
                 Err(e) => {
                     error!("Failed to create channel: {}", e);
