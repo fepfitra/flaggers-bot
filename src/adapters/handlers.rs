@@ -145,7 +145,7 @@ pub async fn handle_create_channel(
                     respond_to_interaction(
                         ctx,
                         component,
-                        &format!("Created and added you to <#{}>!", ch.id.get()),
+                        &format!("Created <#{}>!", ch.id.get()),
                     )
                     .await;
                 }
