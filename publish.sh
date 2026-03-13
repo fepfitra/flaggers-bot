@@ -28,6 +28,13 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
+# Ensure local is up to date
+git fetch origin
+if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/master)" ]; then
+    echo "Local is behind remote, pulling..."
+    git pull --rebase origin master
+fi
+
 CARGO_FILE="Cargo.toml"
 
 CURRENT_VERSION=$(grep '^version = ' "$CARGO_FILE" | sed 's/version = "\(.*\)"/\1/')
