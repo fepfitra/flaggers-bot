@@ -51,8 +51,6 @@ jobs:
 
       - name: Build
         run: cargo build
-        env:
-          DISCORD_TOKEN: dummy_token_for_ci
 
   build:
     runs-on: ubuntu-latest
@@ -91,8 +89,6 @@ jobs:
 
       - name: Build release
         run: cargo build --release
-        env:
-          DISCORD_TOKEN: dummy_token_for_ci
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
