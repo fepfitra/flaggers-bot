@@ -17,6 +17,17 @@ if [[ ! "$TYPE" =~ ^(patch|minor|major)$ ]]; then
     exit 1
 fi
 
+BRANCH=$(git branch --show-current)
+if [ "$BRANCH" != "master" ]; then
+    echo "Error: Must be on master branch to publish (currently on: $BRANCH)"
+    exit 1
+fi
+
+if [ -n "$(git status --porcelain)" ]; then
+    echo "Error: You have uncommitted changes. Commit or stash them first."
+    exit 1
+fi
+
 CARGO_FILE="Cargo.toml"
 
 CURRENT_VERSION=$(grep '^version = ' "$CARGO_FILE" | sed 's/version = "\(.*\)"/\1/')
@@ -42,6 +53,9 @@ esac
 
 NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 
+echo "Running tests..."
+cargo test
+
 echo "Running clippy..."
 cargo clippy -- -D warnings
 
@@ -50,17 +64,15 @@ echo "New version: $NEW_VERSION"
 
 sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" "$CARGO_FILE"
 
-cargo update
-
 git add "$CARGO_FILE" Cargo.lock
 git commit -m "chore: bump version to v$NEW_VERSION"
 
 git tag "v$NEW_VERSION"
 
-echo "Pushing to master..."
-git push origin master
-
 echo "Pushing tag v$NEW_VERSION..."
 git push origin "v$NEW_VERSION"
+
+echo "Pushing to master..."
+git push origin master
 
 echo "Done! Version bumped to v$NEW_VERSION"
