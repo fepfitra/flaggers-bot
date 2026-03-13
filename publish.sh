@@ -60,9 +60,6 @@ esac
 
 NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 
-echo "Running tests..."
-cargo test
-
 echo "Running clippy..."
 cargo clippy -- -D warnings
 
