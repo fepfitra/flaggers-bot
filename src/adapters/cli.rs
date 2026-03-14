@@ -26,6 +26,20 @@ pub enum Commands {
 
     /// Daemon management
     Daemon(DaemonArgs),
+
+    /// Dump challenges from CTFd site
+    Dump(DumpArgs),
+}
+
+#[derive(Parser, Debug)]
+pub struct DumpArgs {
+    /// CTF site URL (e.g., https://ctf.example.com)
+    #[arg(long)]
+    pub site: String,
+
+    /// Access token
+    #[arg(long)]
+    pub token: String,
 }
 
 #[derive(Parser, Debug)]

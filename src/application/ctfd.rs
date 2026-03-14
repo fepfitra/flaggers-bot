@@ -247,9 +247,11 @@ pub fn extract_file_links(view_html: &str, base_url: &str) -> Vec<String> {
     }
 
     let mut links = Vec::new();
+    let base_url = base_url.trim_end_matches('/');
+
     let mut search_start = 0;
 
-    while let Some(start) = view_html[search_start..].find(r#"href="/files/"#) {
+    while let Some(start) = view_html[search_start..].find("href=\"/files/") {
         let full_start = search_start + start;
         let rest = &view_html[full_start..];
         if let Some(path) = rest.split('"').nth(1) {
@@ -257,6 +259,19 @@ pub fn extract_file_links(view_html: &str, base_url: &str) -> Vec<String> {
             links.push(url);
         }
         search_start = full_start + 1;
+    }
+
+    if links.is_empty() {
+        search_start = 0;
+        while let Some(start) = view_html[search_start..].find("href='/files/") {
+            let full_start = search_start + start;
+            let rest = &view_html[full_start..];
+            if let Some(path) = rest.split('\'').nth(1) {
+                let url = format!("{}{}", base_url, path);
+                links.push(url);
+            }
+            search_start = full_start + 1;
+        }
     }
 
     links
