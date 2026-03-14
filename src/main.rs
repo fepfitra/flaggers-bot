@@ -140,6 +140,15 @@ async fn run_dump_async(dump_args: DumpArgs) -> Result<(), Box<dyn std::error::E
     let site = &dump_args.site;
     let token = &dump_args.token;
 
+    let site_name = site
+        .trim_start_matches("https://")
+        .trim_start_matches("http://")
+        .trim_end_matches('/');
+    let output_dir = format!("dump_{}", site_name);
+    
+    std::fs::create_dir_all(&output_dir)?;
+    println!("Output directory: {}", output_dir);
+
     println!("Fetching challenges from {}...", site);
 
     let challenges = application::ctfd::fetch_challenges(&client, site, token).await?;
@@ -150,6 +159,8 @@ async fn run_dump_async(dump_args: DumpArgs) -> Result<(), Box<dyn std::error::E
     }
 
     println!("Found {} challenges", challenges.len());
+
+    let mut total_files = 0;
 
     for challenge in &challenges {
         let detail = application::ctfd::fetch_challenge_detail(&client, site, token, challenge.id).await;
@@ -163,6 +174,11 @@ async fn run_dump_async(dump_args: DumpArgs) -> Result<(), Box<dyn std::error::E
             file_links = api_files;
         }
 
+        let safe_category = challenge.category.replace('/', "_");
+        let safe_name = challenge.name.replace('/', "_");
+        let challenge_dir = format!("{}/{}_{}", output_dir, safe_category, safe_name);
+        std::fs::create_dir_all(&challenge_dir)?;
+
         println!(
             "[{}/{}] {} ({}) - {} files",
             challenge.category,
@@ -172,12 +188,44 @@ async fn run_dump_async(dump_args: DumpArgs) -> Result<(), Box<dyn std::error::E
             file_links.len()
         );
 
-        for file in &file_links {
-            println!("  - {}", file);
+        for file_url in &file_links {
+            let filename = file_url
+                .split('/')
+                .next_back()
+                .unwrap_or("file")
+                .split('?')
+                .next()
+                .unwrap_or("file");
+
+            let filepath = format!("{}/{}", challenge_dir, filename);
+            
+            print!("  Downloading {}... ", filename);
+            
+            match client.get(file_url).send().await {
+                Ok(response) => {
+                    if response.status().is_success() {
+                        match response.bytes().await {
+                            Ok(bytes) => {
+                                std::fs::write(&filepath, &bytes)?;
+                                println!("OK ({} bytes)", bytes.len());
+                                total_files += 1;
+                            }
+                            Err(e) => {
+                                println!("FAILED: {}", e);
+                            }
+                        }
+                    } else {
+                        println!("FAILED: HTTP {}", response.status());
+                    }
+                }
+                Err(e) => {
+                    println!("FAILED: {}", e);
+                }
+            }
         }
     }
 
-    println!("\nProcessed {} challenges", challenges.len());
+    println!("\nProcessed {} challenges, {} files downloaded", challenges.len(), total_files);
     Ok(())
 }
 
