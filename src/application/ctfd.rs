@@ -1,4 +1,3 @@
-use html_to_markdown_rs::convert;
 use poise::serenity_prelude as serenity;
 use reqwest::Client;
 use serde::Deserialize;
@@ -156,7 +155,7 @@ pub async fn fetch_challenge_detail(
         .and_then(|v| v.as_str())
         .unwrap_or("");
 
-    let description = convert(html, None).unwrap_or_else(|_| html.to_string());
+    let description = html_to_markdown_rs::convert(html, None).unwrap_or_else(|_| html.to_string());
 
     let view_html = detail
         .data
