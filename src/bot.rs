@@ -46,8 +46,11 @@ pub async fn run_bot() {
                 if infrastructure::updater::check_and_clear_updated_flag() {
                     info!("Bot updated and restarted successfully");
                 }
-                info!("Bot ready");
-                poise::builtins::register_globally(ctx, &framework.options().commands).await?;
+                info!("Bot ready, registering commands globally");
+                match poise::builtins::register_globally(ctx, &framework.options().commands).await {
+                    Ok(_) => info!("Commands registered globally"),
+                    Err(e) => tracing::error!("Failed to register commands: {}", e),
+                }
                 Ok(http_service)
             })
         })
