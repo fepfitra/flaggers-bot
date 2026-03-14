@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(name = "flaggers_bot", version = env!("CARGO_PKG_VERSION"))]
-#[command(about = "A Discord bot for CTF events", long_about = None)]
+#[command(about = "A CLI and Discord bot for CTF events", long_about = None)]
 pub struct Args {
     #[command(subcommand)]
     pub command: Option<Commands>,
