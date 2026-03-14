@@ -263,11 +263,10 @@ pub async fn dump(
         };
 
         let mut file_links = application::ctfd::extract_file_links(&view_html, &site);
-        let api_files = application::ctfd::fetch_challenge_files(&http_service.client, &site, &token, challenge.id).await;
-        for file in api_files {
-            if !file_links.contains(&file) {
-                file_links.push(file);
-            }
+        
+        if file_links.is_empty() {
+            let api_files = application::ctfd::fetch_challenge_files(&http_service.client, &site, &token, challenge.id).await;
+            file_links = api_files;
         }
 
         let embed = CreateEmbed::new()

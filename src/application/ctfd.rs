@@ -204,20 +204,20 @@ pub async fn fetch_challenge_files(
     {
         Ok(r) => r,
         Err(e) => {
-            tracing::warn!("Failed to fetch files for challenge {}: {}", challenge_id, e);
+            tracing::debug!("Failed to fetch files for challenge {}: {}", challenge_id, e);
             return Vec::new();
         }
     };
 
     if !resp.status().is_success() {
-        tracing::warn!("Files API returned status {} for challenge {}", resp.status(), challenge_id);
+        tracing::debug!("Files API returned status {} for challenge {}", resp.status(), challenge_id);
         return Vec::new();
     }
 
     let text = match resp.text().await {
         Ok(t) => t,
         Err(e) => {
-            tracing::warn!("Failed to read files response: {}", e);
+            tracing::debug!("Failed to read files response: {}", e);
             return Vec::new();
         }
     };
@@ -225,7 +225,7 @@ pub async fn fetch_challenge_files(
     let files_resp: CtfdFilesResponse = match serde_json::from_str(&text) {
         Ok(r) => r,
         Err(e) => {
-            tracing::warn!("Failed to parse files response: {}", e);
+            tracing::debug!("Failed to parse files response: {}", e);
             return Vec::new();
         }
     };
