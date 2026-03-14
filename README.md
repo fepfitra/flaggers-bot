@@ -26,10 +26,16 @@ A Discord bot for CTF (Capture The Flag) events.
 
 ### /dump Command
 
-Dumps challenges from a CTFd instance and creates a thread for each challenge.
+Dumps challenges from a CTFd instance.
 
+**Discord (creates threads):**
 ```
 /dump <site> <token>
+```
+
+**CLI (downloads files locally):**
+```
+flaggers_bot dump --site https://ctf.example.com --token <token>
 ```
 
 Example: `/dump https://ctf.example.com your_access_token`
@@ -110,13 +116,13 @@ docker run -d \
 
 > **Note:** The `/update` command and `--update` flag are not available in Docker. To update, run: `docker-compose pull` or `docker pull ghcr.io/fepfitra/flaggers-bot:latest`
 
-### Quick Install
+### Quick Install (Binary only, no systemd)
 
 ```bash
 curl -sL https://raw.githubusercontent.com/fepfitra/flaggers-bot/master/install.sh | sh
 ```
 
-This will download the binary, set permissions, and install the systemd service.
+This will download the binary and set permissions. Run `flaggers_bot install-systemd` separately if you want to run the Discord bot as a systemd service.
 
 ## Usage
 
@@ -124,16 +130,19 @@ This will download the binary, set permissions, and install the systemd service.
 # Run the bot directly
 flaggers_bot run
 
-# Install systemd service (run once)
+# Install systemd service (run once, only for Discord bot)
 flaggers_bot install-systemd
 
-# Daemon management
+# Daemon management (only for Discord bot)
 flaggers_bot daemon start
 flaggers_bot daemon stop
 flaggers_bot daemon restart
 flaggers_bot daemon status
 flaggers_bot daemon logs
 flaggers_bot daemon uninstall
+
+# Dump challenges from CTFd site (CLI, downloads files locally)
+flaggers_bot dump --site https://ctf.example.com --token <token>
 
 # Update to latest version (Linux/systemd only, not available in Docker)
 flaggers_bot --update
