@@ -165,6 +165,7 @@ async fn run_dump_async(dump_args: DumpArgs) -> Result<(), Box<dyn std::error::E
     for challenge in &challenges {
         let detail = application::ctfd::fetch_challenge_detail(&client, site, token, challenge.id).await;
 
+        let description = detail.as_ref().map(|d| d.description.as_str()).unwrap_or("");
         let view_html = detail.as_ref().map(|d| d.view_html.as_str()).unwrap_or("");
 
         let mut file_links = application::ctfd::extract_file_links(view_html, site);
@@ -178,6 +179,28 @@ async fn run_dump_async(dump_args: DumpArgs) -> Result<(), Box<dyn std::error::E
         let safe_name = challenge.name.replace('/', "_");
         let challenge_dir = format!("{}/{}_{}", output_dir, safe_category, safe_name);
         std::fs::create_dir_all(&challenge_dir)?;
+
+        let readme_content = format!(
+            "# {}\n\n**Category:** {}\n**Points:** {}\n\n{}\n\n## Files\n{}\n",
+            challenge.name,
+            challenge.category,
+            challenge.value,
+            description,
+            if file_links.is_empty() {
+                "No files".to_string()
+            } else {
+                file_links
+                    .iter()
+                    .map(|f| {
+                        let filename = f.split('/').next_back().unwrap_or("file").split('?').next().unwrap_or("file");
+                        format!("- [{}]({})", filename, f)
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            }
+        );
+
+        std::fs::write(format!("{}/README.md", challenge_dir), readme_content)?;
 
         println!(
             "[{}/{}] {} ({}) - {} files",
