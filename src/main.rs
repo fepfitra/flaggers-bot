@@ -106,8 +106,6 @@ fn main() {
                 println!("Updated to v{}", version);
                 if infrastructure::systemd::restart_daemon_systemd() {
                     println!("Daemon restarted");
-                } else {
-                    println!("Note: Restart daemon manually if systemd service is installed");
                 }
                 return;
             }
