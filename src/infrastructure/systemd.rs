@@ -58,12 +58,35 @@ pub fn restart_daemon_systemd() -> bool {
         return false;
     }
 
+    if !service_exists() {
+        return false;
+    }
+
     let output = Command::new("systemctl")
         .args(["--user", "restart", "flaggers_bot"])
         .output();
 
     match output {
         Ok(o) => o.status.success(),
+        Err(_) => false,
+    }
+}
+
+pub fn service_exists() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        return false;
+    }
+
+    let output = Command::new("systemctl")
+        .args(["--user", "list-unit-files", "flaggers_bot.service"])
+        .output();
+
+    match output {
+        Ok(o) => {
+            o.status.success()
+                && String::from_utf8_lossy(&o.stdout).contains("flaggers_bot.service")
+        }
         Err(_) => false,
     }
 }
