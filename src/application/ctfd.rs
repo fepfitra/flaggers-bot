@@ -171,6 +171,76 @@ pub async fn fetch_challenge_detail(
     })
 }
 
+#[derive(Deserialize)]
+struct CtfdFilesResponse {
+    success: bool,
+    data: Vec<CtfdFile>,
+}
+
+#[derive(Deserialize)]
+#[allow(dead_code)]
+struct CtfdFile {
+    #[serde(rename = "type")]
+    file_type: String,
+    name: String,
+    url: String,
+}
+
+pub async fn fetch_challenge_files(
+    client: &Client,
+    base_url: &str,
+    token: &str,
+    challenge_id: i64,
+) -> Vec<String> {
+    let base_url = base_url.trim_end_matches('/');
+    let files_url = format!("{}/api/v1/challenges/{}/files", base_url, challenge_id);
+
+    let resp = match client
+        .get(&files_url)
+        .header("Authorization", format!("Token {}", token))
+        .header("Content-Type", "application/json")
+        .send()
+        .await
+    {
+        Ok(r) => r,
+        Err(e) => {
+            tracing::warn!("Failed to fetch files for challenge {}: {}", challenge_id, e);
+            return Vec::new();
+        }
+    };
+
+    if !resp.status().is_success() {
+        tracing::warn!("Files API returned status {} for challenge {}", resp.status(), challenge_id);
+        return Vec::new();
+    }
+
+    let text = match resp.text().await {
+        Ok(t) => t,
+        Err(e) => {
+            tracing::warn!("Failed to read files response: {}", e);
+            return Vec::new();
+        }
+    };
+
+    let files_resp: CtfdFilesResponse = match serde_json::from_str(&text) {
+        Ok(r) => r,
+        Err(e) => {
+            tracing::warn!("Failed to parse files response: {}", e);
+            return Vec::new();
+        }
+    };
+
+    if !files_resp.success {
+        return Vec::new();
+    }
+
+    files_resp
+        .data
+        .iter()
+        .map(|f| format!("{}{}", base_url, f.url.trim_start_matches('/')))
+        .collect()
+}
+
 pub fn extract_file_links(view_html: &str, base_url: &str) -> Vec<String> {
     if view_html.is_empty() {
         return Vec::new();
