@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1](https://github.com/fepfitra/flaggers-bot/compare/v2.2.0...v2.2.1) - 2026-04-02
+
+### Fixed
+
+- only upload binary on tag push
+- move build and release to release workflow (avoid race condition)
+
 ## [2.2.0](https://github.com/fepfitra/flaggers-bot/compare/v2.1.3...v2.2.0) - 2026-04-02
 
 ### Added
