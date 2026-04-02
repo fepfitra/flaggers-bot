@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0](https://github.com/fepfitra/flaggers-bot/compare/v2.1.2...v2.2.0) - 2026-04-02
+
+### Added
+
+- add release-plz for automated releases with changelog
+
+### Fixed
+
+- add git_only=true to release-plz config
+- remove pull_request trigger to avoid detached HEAD
+
+### Other
+
+- release v2.1.2
+- use fully qualified html_to_markdown_rs::convert
+
 ## [2.1.2](https://github.com/fepfitra/flaggers-bot/releases/tag/v2.1.2) - 2026-04-02
 
 ### Added
