@@ -20,6 +20,9 @@ fn main() {
                 }
             },
             Commands::Run => {
+                if let Err(e) = tracing_journald::layer() {
+                    eprintln!("Failed to init journald: {}", e);
+                }
                 tracing_subscriber::fmt()
                     .with_max_level(tracing::Level::INFO)
                     .init();
@@ -27,6 +30,7 @@ fn main() {
                 return;
             }
             Commands::Dump(dump_args) => {
+                let _ = tracing_journald::layer();
                 tracing_subscriber::fmt()
                     .with_max_level(tracing::Level::INFO)
                     .init();
