@@ -1,4 +1,6 @@
 pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    use tracing::info;
+
     if std::path::Path::new("/.dockerenv").exists() {
         return Err("Update not supported in Docker. Pull the new image instead.".into());
     }
@@ -50,7 +52,7 @@ pub fn update_binary() -> Result<String, Box<dyn std::error::Error + Send + Sync
         .as_str()
         .ok_or("Failed to get download URL")?;
 
-    println!("Downloading {}...", asset_url);
+    info!("Downloading {}...", asset_url);
     let mut response = client.get(asset_url).send()?;
 
     if !response.status().is_success() {

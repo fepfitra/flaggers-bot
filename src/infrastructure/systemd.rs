@@ -1,9 +1,11 @@
 use std::process::Command;
+#[allow(unused_imports)]
+use tracing::warn;
 
 pub fn stop_daemon() -> bool {
     #[cfg(target_os = "macos")]
     {
-        eprintln!("macOS is not supported yet. Contributions are welcome!");
+        warn!("macOS is not supported yet. Contributions are welcome!");
         return false;
     }
 
@@ -20,7 +22,7 @@ pub fn stop_daemon() -> bool {
 pub fn daemon_status() -> bool {
     #[cfg(target_os = "macos")]
     {
-        eprintln!("macOS is not supported yet. Contributions are welcome!");
+        warn!("macOS is not supported yet. Contributions are welcome!");
         return false;
     }
 
@@ -37,7 +39,7 @@ pub fn daemon_status() -> bool {
 pub fn start_daemon_systemd() -> bool {
     #[cfg(target_os = "macos")]
     {
-        eprintln!("macOS is not supported yet. Contributions are welcome!");
+        warn!("macOS is not supported yet. Contributions are welcome!");
         return false;
     }
 
@@ -54,7 +56,7 @@ pub fn start_daemon_systemd() -> bool {
 pub fn restart_daemon_systemd() -> bool {
     #[cfg(target_os = "macos")]
     {
-        eprintln!("macOS is not supported yet. Contributions are welcome!");
+        warn!("macOS is not supported yet. Contributions are welcome!");
         return false;
     }
 

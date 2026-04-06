@@ -6,6 +6,7 @@ mod infrastructure;
 use adapters::cli::{Args, Commands, DumpArgs};
 use clap::Parser;
 use reqwest::Client;
+use tracing::{error, info, warn};
 
 fn main() {
     let args = Args::parse();
@@ -15,11 +16,14 @@ fn main() {
             Commands::InstallSystemd => match infrastructure::systemd::install_systemd_service() {
                 Ok(_) => return,
                 Err(e) => {
-                    eprintln!("Failed to install systemd service: {}", e);
+                    error!("Failed to install systemd service: {}", e);
                     std::process::exit(1);
                 }
             },
             Commands::Run => {
+                if let Err(e) = tracing_journald::layer() {
+                    warn!("Failed to init journald: {}", e);
+                }
                 tracing_subscriber::fmt()
                     .with_max_level(tracing::Level::INFO)
                     .init();
@@ -27,6 +31,7 @@ fn main() {
                 return;
             }
             Commands::Dump(dump_args) => {
+                let _ = tracing_journald::layer();
                 tracing_subscriber::fmt()
                     .with_max_level(tracing::Level::INFO)
                     .init();
@@ -36,38 +41,36 @@ fn main() {
             Commands::Daemon(daemon_args) => match daemon_args.action {
                 adapters::cli::DaemonAction::Start => {
                     if infrastructure::systemd::start_daemon_systemd() {
-                        println!("Daemon started via systemd");
+                        info!("Daemon started via systemd");
                     } else {
-                        eprintln!(
-                            "Failed to start daemon. Install systemd service first: flaggers_bot install-systemd"
-                        );
+                        error!("Failed to start daemon. Install systemd service first: flaggers_bot install-systemd");
                         std::process::exit(1);
                     }
                     return;
                 }
                 adapters::cli::DaemonAction::Stop => {
                     if infrastructure::systemd::stop_daemon() {
-                        println!("Daemon stopped");
+                        info!("Daemon stopped");
                     } else {
-                        eprintln!("Failed to stop daemon");
+                        error!("Failed to stop daemon");
                         std::process::exit(1);
                     }
                     return;
                 }
                 adapters::cli::DaemonAction::Restart => {
                     if infrastructure::systemd::restart_daemon_systemd() {
-                        println!("Daemon restarted via systemd");
+                        info!("Daemon restarted via systemd");
                     } else {
-                        eprintln!("Failed to restart daemon");
+                        error!("Failed to restart daemon");
                         std::process::exit(1);
                     }
                     return;
                 }
                 adapters::cli::DaemonAction::Status => {
                     if infrastructure::systemd::daemon_status() {
-                        println!("Daemon is running");
+                        info!("Daemon is running");
                     } else {
-                        println!("Daemon is not running");
+                        info!("Daemon is not running");
                     }
                     return;
                 }
@@ -81,7 +84,7 @@ fn main() {
                             println!("{}", String::from_utf8_lossy(&o.stdout));
                         }
                         Err(e) => {
-                            eprintln!("Failed to get logs: {}", e);
+                            error!("Failed to get logs: {}", e);
                             std::process::exit(1);
                         }
                     }
@@ -89,10 +92,10 @@ fn main() {
                 }
                 adapters::cli::DaemonAction::Uninstall => match infrastructure::systemd::uninstall_systemd_service() {
                     Ok(_) => {
-                        println!("Daemon uninstalled successfully");
+                        info!("Daemon uninstalled successfully");
                     }
                     Err(e) => {
-                        eprintln!("Failed to uninstall: {}", e);
+                        error!("Failed to uninstall: {}", e);
                         std::process::exit(1);
                     }
                 },
@@ -103,14 +106,14 @@ fn main() {
     if args.update {
         match infrastructure::updater::update_binary() {
             Ok(version) => {
-                println!("Updated to v{}", version);
+                info!("Updated to v{}", version);
                 if infrastructure::systemd::restart_daemon_systemd() {
-                    println!("Daemon restarted");
+                    info!("Daemon restarted");
                 }
                 return;
             }
             Err(e) => {
-                eprintln!("{}", e);
+                error!("{}", e);
                 std::process::exit(1);
             }
         }
@@ -119,17 +122,17 @@ fn main() {
     if args.uninstall {
         match infrastructure::systemd::uninstall_bot() {
             Ok(_) => {
-                println!("Bot uninstalled successfully");
+                info!("Bot uninstalled successfully");
             }
             Err(e) => {
-                eprintln!("Failed to uninstall: {}", e);
+                error!("Failed to uninstall: {}", e);
                 std::process::exit(1);
             }
         }
         return;
     }
 
-    println!("No command specified. Use --help for usage information.");
+    info!("No command specified. Use --help for usage information.");
     std::process::exit(1);
 }
 
@@ -145,18 +148,18 @@ async fn run_dump_async(dump_args: DumpArgs) -> Result<(), Box<dyn std::error::E
     let output_dir = format!("dump_{}", site_name);
     
     std::fs::create_dir_all(&output_dir)?;
-    println!("Output directory: {}", output_dir);
+    info!("Output directory: {}", output_dir);
 
-    println!("Fetching challenges from {}...", site);
+    info!("Fetching challenges from {}...", site);
 
     let challenges = application::ctfd::fetch_challenges(&client, site, token).await?;
 
     if challenges.is_empty() {
-        println!("No challenges found");
+        info!("No challenges found");
         return Ok(());
     }
 
-    println!("Found {} challenges", challenges.len());
+    info!("Found {} challenges", challenges.len());
 
     let mut total_files = 0;
 
@@ -200,7 +203,7 @@ async fn run_dump_async(dump_args: DumpArgs) -> Result<(), Box<dyn std::error::E
 
         std::fs::write(format!("{}/README.md", challenge_dir), readme_content)?;
 
-        println!(
+        info!(
             "[{}/{}] {} ({}) - {} files",
             challenge.category,
             challenge.name,
@@ -220,7 +223,7 @@ async fn run_dump_async(dump_args: DumpArgs) -> Result<(), Box<dyn std::error::E
 
             let filepath = format!("{}/{}", challenge_dir, filename);
             
-            print!("  Downloading {}... ", filename);
+            info!("  Downloading {}... ", filename);
             
             match client.get(file_url).send().await {
                 Ok(response) => {
@@ -228,32 +231,32 @@ async fn run_dump_async(dump_args: DumpArgs) -> Result<(), Box<dyn std::error::E
                         match response.bytes().await {
                             Ok(bytes) => {
                                 std::fs::write(&filepath, &bytes)?;
-                                println!("OK ({} bytes)", bytes.len());
+                                info!("  OK ({} bytes)", bytes.len());
                                 total_files += 1;
                             }
                             Err(e) => {
-                                println!("FAILED: {}", e);
+                                warn!("  FAILED: {}", e);
                             }
                         }
                     } else {
-                        println!("FAILED: HTTP {}", response.status());
+                        warn!("  FAILED: HTTP {}", response.status());
                     }
                 }
                 Err(e) => {
-                    println!("FAILED: {}", e);
+                    warn!("  FAILED: {}", e);
                 }
             }
         }
     }
 
-    println!("\nProcessed {} challenges, {} files downloaded", challenges.len(), total_files);
+    info!("Processed {} challenges, {} files downloaded", challenges.len(), total_files);
     Ok(())
 }
 
 fn run_dump(dump_args: DumpArgs) {
     let rt = tokio::runtime::Runtime::new().expect("Failed to create tokio runtime");
     if let Err(e) = rt.block_on(run_dump_async(dump_args)) {
-        eprintln!("Error: {}", e);
+        error!("Error: {}", e);
         std::process::exit(1);
     }
 }
